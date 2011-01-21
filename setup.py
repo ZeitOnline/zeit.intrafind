@@ -9,9 +9,7 @@ NEWS = open(os.path.join(here, 'CHANGES.txt')).read()
 version = '0.1dev'
 
 install_requires = [
-    # List your project dependencies here.
-    # For more details, see:
-    # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
+    'zeit.cms',
 ]
 
 
