@@ -31,8 +31,4 @@ setup(name='zeit.intrafind',
     include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,
-    entry_points={
-        'console_scripts':
-            ['zeit.intrafind=zeit.intrafind:main']
-    }
 )
