@@ -2,6 +2,10 @@ Vivi Intrafind API
 ==================
 
 
+Tagger
+------
+
+
 >>> content = XXX
 >>> tagger = ITagger(content)
 
@@ -43,4 +47,11 @@ Edgecases -> unittest
 * Blacklisting survives update (even when the tag isn't in the result for
   a while)
 * delete / add not possible (only via update)
+
+
+
+Tags as they are stored in DAV
+------------------------------
+
+Searchable, summarizable
 

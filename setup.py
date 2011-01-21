@@ -9,6 +9,8 @@ NEWS = open(os.path.join(here, 'CHANGES.txt')).read()
 version = '0.1dev'
 
 install_requires = [
+    'setuptools',
+    'unittest2',
     'zeit.cms',
     'zope.interface',
     'zope.schema',
