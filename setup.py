@@ -10,6 +10,8 @@ version = '0.1dev'
 
 install_requires = [
     'zeit.cms',
+    'zope.interface',
+    'zope.schema',
 ]
 
 
