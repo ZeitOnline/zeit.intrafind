@@ -55,3 +55,16 @@ Tags as they are stored in DAV
 
 Searchable, summarizable
 
+For a xml snippet like this::
+
+    <tag freq="1" id="Karen+Duve" status="known" type="Person">
+      Karen Duve
+    </tag>
+
+The following properties in DAV will be created::
+
+    {http://namespaces.zeit.de/CMS/tagging/Karen+Duve}text = Karen Duve
+    {http://namespaces.zeit.de/CMS/tagging/Karen+Duve}frequency = 1
+    {http://namespaces.zeit.de/CMS/tagging/Karen+Duve}status = known
+    {http://namespaces.zeit.de/CMS/tagging/Karen+Duve}type = Person
+

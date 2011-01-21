@@ -34,4 +34,5 @@ class ITag(zope.interface.Interface):
     score = zope.schema.Float(
         title=_('Tag score for document'),
         minvalue=0,
-        maxvalue=1)
+        maxvalue=1,
+        required=False)
