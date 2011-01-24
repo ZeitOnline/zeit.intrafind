@@ -4,16 +4,11 @@
 from zeit.cms.i18n import MessageFactory as _
 import zope.interface
 import zope.schema
+import zeit.cms.tagging.interfaces
 
 
-class ITag(zope.interface.Interface):
+class ITag(zeit.cms.tagging.interfaces.ITag):
     """A generic tag on an object."""
-
-    id = zope.schema.TextLine(
-        title=_('Internal tag id'))
-
-    text = zope.schema.TextLine(
-        title=_('User visible text of tag'))
 
     status = zope.schema.Choice(
         title=_('Tag status'),
@@ -23,16 +18,12 @@ class ITag(zope.interface.Interface):
                      u'whitelisted to be visible in public.')),
         values=('known', 'new'))
 
-    type = zope.interface.Attribute(
-        "Tag type (person, topic, keyword, ...)")
-
-
     frequency = zope.schema.Int(
         title=_('Tag frequency in document'),
-        minvalue=1)
+        min=1)
 
     score = zope.schema.Float(
         title=_('Tag score for document'),
-        minvalue=0,
-        maxvalue=1,
+        min=0.0,
+        max=1.0,
         required=False)
