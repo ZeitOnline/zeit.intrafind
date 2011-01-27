@@ -105,3 +105,31 @@ class TestTag(zeit.cms.testing.FunctionalTestCase,
     def test_tag_factory_should_return_tag_if_there_is_a_label(self):
         self.assertIsNotNone(self.get_tag('code', label='Label'))
 
+    def test_label_should_be_readable_if_proxied(self):
+        import zope.security.proxy
+        tag = self.get_tag('Hamburg', label='Hamburg')
+        tag.__parent__ = self.getRootFolder()
+        proxied = zope.security.proxy.ProxyFactory(tag)
+        self.assertEqual('Hamburg', proxied.label)
+
+    def test_disabled_should_be_settable(self):
+        from zeit.connector.interfaces import IWebDAVProperties
+        tag = self.get_tag('Bielefeld', label='Bielefeld')
+        tag.disabled = True
+        dav = IWebDAVProperties(tag)
+        self.assertIn(
+            ('disabled', 'http://namespaces.zeit.de/CMS/tagging/Bielefeld'),
+            dict(dav))
+        self.assertEqual(
+            'yes',
+            dav[('disabled', 'http://namespaces.zeit.de/CMS/tagging/Bielefeld')])
+
+    def test_same_code_should_have_same_hash(self):
+        tag1 = self.get_tag('Rotterdam', label='Rotterdam')
+        tag2= self.get_tag('Rotterdam', label="R'dam")
+        self.assertEqual(hash(tag1), hash(tag2))
+
+    def test_different_code_should_have_different_hash(self):
+        tag1 = self.get_tag('Rotterdam', label='Rotterdam')
+        tag2= self.get_tag("R'dam", label='Rotterdam')
+        self.assertNotEqual(hash(tag1), hash(tag2))

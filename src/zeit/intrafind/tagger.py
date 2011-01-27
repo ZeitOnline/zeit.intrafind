@@ -43,22 +43,39 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         return (self[code] for code in self)
 
 
+class TagProperty(object):
+
+    def __init__(self, key):
+        self.key = key
+
+    def __get__(self, instance, class_):
+        prop = self._get_property(instance, self.key)
+        return prop.__get__(instance, class_)
+
+    def __set__(self, instance, value):
+        prop = self._get_property(instance, self.key)
+        return prop.__set__(instance, value)
+
+    def _get_property(self, instance, key):
+        return zeit.cms.content.dav.DAVProperty(
+            zeit.intrafind.interfaces.ITag[key],
+            NAMESPACE + instance.code, key)
+
+
+
 class Tag(grokcore.component.MultiAdapter):
 
     grokcore.component.implements(zeit.intrafind.interfaces.ITag)
     grokcore.component.adapts(zeit.cms.interfaces.ICMSContent, basestring)
 
+    for _attr in ('label', 'status', 'frequency', 'score', 'disabled', 'type'):
+        locals()[_attr] = TagProperty(_attr)
+    del _attr
+
     def __new__(cls, context, code):
-        dav = zeit.connector.interfaces.IWebDAVProperties(context)
-        # To be able to use exsting descriptors we factor a new class on the
-        # fly. There may be more elegant ways to do this.
-        instance_dict = {}
-        for key in ('label', 'status', 'frequency', 'score', 'active', 'type'):
-            instance_dict[key] = zeit.cms.content.dav.DAVProperty(
-                zeit.intrafind.interfaces.ITag[key], NAMESPACE + code, key)
-        tag_class = type('Tag({0})'.format(code), (Tag,), instance_dict)
-        tag = object.__new__(tag_class)
+        tag = object.__new__(cls)
         tag.context = context
+
         tag.code = code
         if not tag.label:
             return None
@@ -69,10 +86,8 @@ class Tag(grokcore.component.MultiAdapter):
             return other.code == self.code
         return NotImplemented
 
-
-    def __unicode__(self):
-        return self.label
-
+    def __hash__(self):
+        return hash(self.code)
 
 
 @grokcore.component.adapter(Tag)
