@@ -20,7 +20,8 @@ class ITag(zeit.cms.tagging.interfaces.ITag):
 
     frequency = zope.schema.Int(
         title=_('Tag frequency in document'),
-        min=1)
+        min=1,
+        required=False)
 
     score = zope.schema.Float(
         title=_('Tag score for document'),
