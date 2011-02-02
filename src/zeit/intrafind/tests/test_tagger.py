@@ -74,6 +74,12 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         self.assertEqual('Karen+Duve', tag.__name__)
         self.assertEqual('Karen Duve', tag.label)
 
+    def test_getitem_should_raise_keyerror_if_tag_does_not_exist(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertRaises(KeyError, lambda: tagger['foo'])
+
+
     def test_remove_should_disable_tag(self):
         pass
 

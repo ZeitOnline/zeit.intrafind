@@ -33,7 +33,6 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         tag = zope.component.queryMultiAdapter(
             (self.context, key), zeit.intrafind.interfaces.ITag)
         if tag is None:
-            raise NotImplementedError('no test for this, yet')
             raise KeyError(key)
         tag.__name__ = key
         tag.__parent__ = self
