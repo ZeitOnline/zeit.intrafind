@@ -56,7 +56,8 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         raise NotImplementedError()
 
     def __contains__(self, key):
-        raise NotImplementedError()
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        return ('label', NAMESPACE + key) in dav
 
     def update(self):
         raise NotImplementedError()

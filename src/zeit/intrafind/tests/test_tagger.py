@@ -111,6 +111,18 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         tagger = self.get_tagger(content)
         self.assertEqual(['Karen+Duve', 'Berlin', 'Politik'], list(tagger))
 
+    def test_contains_should_return_true_for_existing_tag(self):
+        content = self.get_content()
+        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
+        tagger = self.get_tagger(content)
+        self.assertIn('Karen+Duve', tagger)
+
+    def test_contains_should_return_false_for_non_existing_tag(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertNotIn('Karen+Duve', tagger)
+
+
 
 class TestTag(zeit.cms.testing.FunctionalTestCase,
               unittest2.TestCase,
