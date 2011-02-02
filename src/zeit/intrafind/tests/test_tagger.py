@@ -86,6 +86,24 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
     def test_add_should_enable_tag(self):
         pass
 
+    def test_iter_should_be_sorted_by_weight(self):
+        content = self.get_content()
+        self.set_tag(content, id='Karen+Duve', label='Karen Duve',
+                     weight='20')
+        self.set_tag(content, id='Berlin', label='Berlin', weight='2')
+        self.set_tag(content, id='Politik', label='Politik', weight='5')
+        tagger = self.get_tagger(content)
+        self.assertEqual(['Karen+Duve', 'Politik', 'Berlin'], list(tagger))
+
+    def test_iter_should_sort_non_weighted_to_the_end(self):
+        content = self.get_content()
+        self.set_tag(content, id='Karen+Duve', label='Karen Duve',
+                     weight='20')
+        self.set_tag(content, id='Berlin', label='Berlin', weight='2')
+        self.set_tag(content, id='Politik', label='Politik')
+        tagger = self.get_tagger(content)
+        self.assertEqual(['Karen+Duve', 'Berlin', 'Politik'], list(tagger))
+
 
 class TestTag(zeit.cms.testing.FunctionalTestCase,
               unittest2.TestCase,

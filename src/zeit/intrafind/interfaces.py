@@ -27,3 +27,9 @@ class ITag(zeit.cms.tagging.interfaces.ITag):
         min=0.0,
         max=1.0,
         required=False)
+
+    weight = zope.schema.Int(
+        title=_(
+            'The weight of the tag in relation to the other tags on context'),
+        required=False,
+        default=0)

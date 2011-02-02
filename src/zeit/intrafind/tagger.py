@@ -21,9 +21,13 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
     def __iter__(self):
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
         prefix_len = len(NAMESPACE)
-        ids = (namespace[prefix_len:] for (name, namespace) in dav
-               if namespace.startswith(NAMESPACE) and name == 'label')
-        return ids
+        # The world has seen more efficient code.
+        ids = set(namespace[prefix_len:] for (name, namespace) in dav
+                  if namespace.startswith(NAMESPACE))
+        sorted_tags = sorted((self[code] for code in ids),
+                             key=lambda tag: tag.weight,
+                             reverse=True)
+        return (tag.code for tag in sorted_tags)
 
     def __len__(self):
         return len(list(self.__iter__()))
@@ -34,6 +38,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             (self.context, key), zeit.intrafind.interfaces.ITag)
         if tag is None:
             raise KeyError(key)
+        # XXX tag doesn't provide ILocation, yet
         tag.__name__ = key
         tag.__parent__ = self
         return tag
@@ -67,7 +72,8 @@ class Tag(grokcore.component.MultiAdapter):
     grokcore.component.implements(zeit.intrafind.interfaces.ITag)
     grokcore.component.adapts(zeit.cms.interfaces.ICMSContent, basestring)
 
-    for _attr in ('label', 'status', 'frequency', 'score', 'disabled', 'type'):
+    for _attr in ('label', 'status', 'frequency', 'score', 'disabled',
+                  'type', 'weight'):
         locals()[_attr] = TagProperty(_attr)
     del _attr
 
