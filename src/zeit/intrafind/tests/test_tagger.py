@@ -31,6 +31,13 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         from zeit.intrafind.tagger import Tagger
         return Tagger(content)
 
+    def test_tagger_should_provide_interface(self):
+        import zope.interface.verify
+        from zeit.cms.tagging.interfaces import ITagger
+        self.assertTrue(
+            zope.interface.verify.verifyObject(
+                ITagger, self.get_tagger(self.get_content())))
+
     def test_should_adapt_contetXXX(self):
         pass
 

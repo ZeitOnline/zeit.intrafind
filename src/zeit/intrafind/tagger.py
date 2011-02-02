@@ -46,6 +46,21 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
     def values(self):
         return (self[code] for code in self)
 
+    def get(self, key, default=None):
+        raise NotImplementedError()
+
+    def keys(self):
+        raise NotImplementedError()
+
+    def items(self):
+        raise NotImplementedError()
+
+    def __contains__(self, key):
+        raise NotImplementedError()
+
+    def update(self):
+        raise NotImplementedError()
+
 
 class TagProperty(object):
 
