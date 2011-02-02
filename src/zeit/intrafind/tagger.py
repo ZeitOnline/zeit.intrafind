@@ -2,11 +2,15 @@
 # See also LICENSE.txt
 
 import grokcore.component
+import lxml.objectify
+import urllib
+import urllib2
 import zc.sourcefactory.interfaces
 import zeit.cms.content.dav
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
 import zeit.intrafind.interfaces
+import zope.app.appsetup.product
 import zope.interface
 import zope.security.proxy
 
@@ -60,7 +64,38 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         return ('label', NAMESPACE + key) in dav
 
     def update(self):
-        raise NotImplementedError()
+        body = zeit.connector.interfaces.IResource(self.context).data.read()
+        data = urllib.urlencode(dict(content=body))
+        response = urllib2.urlopen(self._intrafind_url, data, 10)
+        xml = lxml.objectify.parse(response)
+        self._clear()
+        self._load_from(xml)
+
+    def _clear(self):
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        for code in list(self):
+            remove_namespace = NAMESPACE + code
+            for name, namespace in list(dav.keys()):
+                if namespace == remove_namespace and name != 'disabled':
+                    del dav[(name, namespace)]
+
+    def _load_from(self, xml):
+        for tag_xml in xml.findall('//tag'):
+            code = tag_xml.get('id')
+            tag = Tag(self.context, code)
+            label = unicode(tag_xml).strip()
+            tag.label = label
+            assert label == tag.label
+            tag.frequency = tag_xml.get('freq')
+            tag.score = tag_xml.get('score')
+            tag.status = tag_xml.get('status')
+            tag.type = tag_xml.get('type')
+
+    @property
+    def _intrafind_url(self):
+        config = zope.app.appsetup.product.getProductConfiguration(
+            'zeit.intrafind')
+        return config['tagger']
 
 
 class TagProperty(object):
@@ -83,24 +118,18 @@ class TagProperty(object):
 
 
 
-class Tag(grokcore.component.MultiAdapter):
+class Tag(object):
 
-    grokcore.component.implements(zeit.intrafind.interfaces.ITag)
-    grokcore.component.adapts(zeit.cms.interfaces.ICMSContent, basestring)
+    zope.interface.implements(zeit.intrafind.interfaces.ITag)
 
     for _attr in ('label', 'status', 'frequency', 'score', 'disabled',
                   'type', 'weight'):
         locals()[_attr] = TagProperty(_attr)
     del _attr
 
-    def __new__(cls, context, code):
-        tag = object.__new__(cls)
-        tag.context = context
-
-        tag.code = code
-        if not tag.label:
-            return None
-        return tag
+    def __init__(self, context, code):
+        self.context = context
+        self.code = code
 
     def __eq__(self, other):
         if zope.security.proxy.isinstance(other, Tag):
@@ -109,6 +138,15 @@ class Tag(grokcore.component.MultiAdapter):
 
     def __hash__(self):
         return hash(self.code)
+
+
+@grokcore.component.adapter(zeit.cms.interfaces.ICMSContent, basestring)
+@grokcore.component.implementer(zeit.intrafind.interfaces.ITag)
+def existing_tag_factory(context, code):
+    tag = Tag(context, code)
+    if not tag.label:
+        return None
+    return tag
 
 
 @grokcore.component.adapter(Tag)

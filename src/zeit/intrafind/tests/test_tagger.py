@@ -1,6 +1,7 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import pkg_resources
 import unittest2
 import zeit.cms.testing
 import zeit.intrafind.testing
@@ -38,24 +39,82 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
             zope.interface.verify.verifyObject(
                 ITagger, self.get_tagger(self.get_content())))
 
-    def test_should_adapt_contetXXX(self):
-        pass
-
-    def test_update_should_post_xml_to_intrafind(self):
-        pass
+    def test_update_should_post_xml_urlencoded_to_intrafind(self):
+        handler = zeit.intrafind.testing.RequestHandler
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual(1, len(handler.posts_received))
+        self.assertTrue(handler.posts_received[0]['data'].startswith(
+            'content=%3C%3Fxml+version'))
 
     def test_update_should_extract_tags_from_response(self):
-        pass
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual(12, len(tagger))
 
-    def test_update_should_change_content(self):
-        pass
+    def test_update_should_store_frequency(self):
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual(4, tagger['Kairo'].frequency)
+        self.assertEqual(1, tagger['Hauptstadt'].frequency)
+        self.assertIsNone(tagger['Innenpolitik'].frequency)
+
+    def test_update_should_store_score(self):
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual(0.67924225, tagger['Politik'].score)
+        self.assertIsNone(tagger['Kairo'].score)
+
+    def test_update_should_store_status(self):
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual('known', tagger['Alexandria'].status)
+        self.assertEqual('new', tagger['Demonstrant'].status)
+
+    def test_update_should_store_type(self):
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual('topic', tagger['Politik'].type)
+        self.assertEqual('free', tagger['Demonstrant'].type)
+        self.assertEqual('Person', tagger['Hosni+Mubarak'].type)
+
+    def test_update_should_remove_tags_not_in_response(self):
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        self.set_tag(content, id='Hamburg', label='Hamburg')
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertNotIn('Hamburg', tagger)
 
     def test_tagger_should_be_empty_if_not_tagged(self):
         content = self.get_content()
         tagger = self.get_tagger(content)
         self.assertEqual([], list(tagger))
 
-    def test_tagger_should_init_tags_from_content(self):
+    def test_tagger_should_get_tags_from_content(self):
         content = self.get_content()
         self.set_tag(content, id='Karen+Duve', label='Karen Duve')
         self.set_tag(content, id='Berlin', label='Berlin')
@@ -131,10 +190,10 @@ class TestTag(zeit.cms.testing.FunctionalTestCase,
     layer = zeit.intrafind.testing.layer
 
     def get_tag(self, code, **kw):
-        from zeit.intrafind.tagger import Tag
+        from zeit.intrafind.tagger import existing_tag_factory
         content = self.get_content()
         self.set_tag(content, code, **kw)
-        return Tag(content, code)
+        return existing_tag_factory(content, code)
 
     def test_tag_should_implement_interface(self):
         from zope.interface.verify import verifyObject
