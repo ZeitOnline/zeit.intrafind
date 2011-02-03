@@ -160,9 +160,3 @@ def tag_webdavproperties(context):
 @grokcore.component.implementer(zc.sourcefactory.interfaces.IToken)
 def token_for_tag(tag):
     return tag.__name__
-
-
-
-# TODO:
-# saving of selected/deselected tags
-
