@@ -2,6 +2,7 @@
 # See also LICENSE.txt
 
 import grokcore.component
+import logging
 import lxml.objectify
 import urllib
 import urllib2
@@ -15,6 +16,7 @@ import zope.security.proxy
 
 
 NAMESPACE = "http://namespaces.zeit.de/CMS/tagging/"
+log = logging.getLogger(__name__)
 
 
 class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
@@ -63,6 +65,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         return ('label', NAMESPACE + key) in dav
 
     def update(self):
+        log.info('Updating tags for %s', self.context.uniqueId)
         body = zeit.connector.interfaces.IResource(self.context).data.read()
         data = urllib.urlencode(dict(content=body))
         response = urllib2.urlopen(self._intrafind_url, data, 10)
