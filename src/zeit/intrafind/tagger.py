@@ -5,7 +5,6 @@ import grokcore.component
 import lxml.objectify
 import urllib
 import urllib2
-import zc.sourcefactory.interfaces
 import zeit.cms.content.dav
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
@@ -153,10 +152,3 @@ def existing_tag_factory(context, code):
 @grokcore.component.implementer(zeit.connector.interfaces.IWebDAVProperties)
 def tag_webdavproperties(context):
     return zeit.connector.interfaces.IWebDAVProperties(context.context, None)
-
-
-
-@grokcore.component.adapter(Tag)
-@grokcore.component.implementer(zc.sourcefactory.interfaces.IToken)
-def token_for_tag(tag):
-    return tag.__name__
