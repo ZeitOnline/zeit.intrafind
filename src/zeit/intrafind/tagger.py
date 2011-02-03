@@ -29,7 +29,8 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         # The world has seen more efficient code.
         ids = set(namespace[prefix_len:] for (name, namespace) in dav
                   if namespace.startswith(NAMESPACE))
-        sorted_tags = sorted((self[code] for code in ids),
+        tags = (self.get(code) for code in ids)
+        sorted_tags = sorted((tag for tag in tags if tag is not None),
                              key=lambda tag: tag.weight,
                              reverse=True)
         return (tag.code for tag in sorted_tags)
@@ -52,7 +53,10 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         return (self[code] for code in self)
 
     def get(self, key, default=None):
-        raise NotImplementedError()
+        try:
+            return self[key]
+        except KeyError:
+            return default
 
     def keys(self):
         raise NotImplementedError()

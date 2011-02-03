@@ -9,6 +9,7 @@ NEWS = open(os.path.join(here, 'CHANGES.txt')).read()
 version = '0.1dev'
 
 install_requires = [
+    'mock',
     'setuptools',
     'unittest2',
     'zeit.cms',

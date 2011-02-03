@@ -1,6 +1,7 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import mock
 import pkg_resources
 import unittest2
 import zeit.cms.testing
@@ -109,6 +110,24 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         tagger.update()
         self.assertNotIn('Hamburg', tagger)
 
+    def test_clear_should_remove_all_tags(self):
+        content = self.get_content()
+        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
+        self.set_tag(content, id='Berlin', label='Berlin')
+        tagger = self.get_tagger(content)
+        tagger._clear()
+        self.assertEqual([], list(tagger))
+
+    def test_clear_should_keep_disabled_property(self):
+        from zeit.connector.interfaces import IWebDAVProperties
+        content = self.get_content()
+        self.set_tag(content, id='Berlin', label='Berlin', disabled='yes')
+        tagger = self.get_tagger(content)
+        tagger._clear()
+        dav = IWebDAVProperties(content)
+        self.assertIn(
+            ('disabled', 'http://namespaces.zeit.de/CMS/tagging/Berlin'), dav)
+
     def test_tagger_should_be_empty_if_not_tagged(self):
         content = self.get_content()
         tagger = self.get_tagger(content)
@@ -145,7 +164,6 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         tagger = self.get_tagger(content)
         self.assertRaises(KeyError, lambda: tagger['foo'])
 
-
     def test_remove_should_disable_tag(self):
         pass
 
@@ -170,6 +188,15 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         tagger = self.get_tagger(content)
         self.assertEqual(['Karen+Duve', 'Berlin', 'Politik'], list(tagger))
 
+    def test_iter_should_not_yield_tags_with_only_disabled_property(self):
+        from zeit.connector.interfaces import IWebDAVProperties
+        content = self.get_content()
+        dav = IWebDAVProperties(content)
+        dav[('disabled', 'http://namespaces.zeit.de/CMS/tagging/Berlin')] = (
+            'yes')
+        tagger = self.get_tagger(content)
+        self.assertEqual([], list(tagger))
+
     def test_contains_should_return_true_for_existing_tag(self):
         content = self.get_content()
         self.set_tag(content, id='Karen+Duve', label='Karen Duve')
@@ -180,6 +207,18 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         content = self.get_content()
         tagger = self.get_tagger(content)
         self.assertNotIn('Karen+Duve', tagger)
+
+    def test_get_should_return_existing_tag(self):
+        content = self.get_content()
+        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
+        tagger = self.get_tagger(content)
+        self.assertEqual('Karen Duve', tagger.get('Karen+Duve').label)
+
+    def test_get_should_return_default_if_tag_does_not_exist(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertEqual(mock.sentinel.default,
+                         tagger.get('Karen+Duve', mock.sentinel.default))
 
 
 
