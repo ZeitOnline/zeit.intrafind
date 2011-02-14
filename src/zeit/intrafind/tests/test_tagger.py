@@ -274,3 +274,12 @@ class TestTag(zeit.cms.testing.FunctionalTestCase,
         tag1 = self.get_tag('Rotterdam', label='Rotterdam')
         tag2= self.get_tag("R'dam", label='Rotterdam')
         self.assertNotEqual(hash(tag1), hash(tag2))
+
+    def test_weight_should_be_settable_with_permission(self):
+        from zeit.cms.workingcopy.interfaces import IWorkingcopy
+        import zope.security.proxy
+        tag = self.get_tag('Hamburg', label='Hamburg')
+        tag.__parent__ = IWorkingcopy(None)
+        proxied = zope.security.proxy.ProxyFactory(tag)
+        proxied.weight = 7
+

@@ -16,7 +16,10 @@
       interface=".interfaces.ITag"
       permission="zope.View"
       />
+    <require
+      set_schema=".interfaces.ITag"
+      permission="zeit.EditContent"
+      />
   </class>
-
 
 </configure>
