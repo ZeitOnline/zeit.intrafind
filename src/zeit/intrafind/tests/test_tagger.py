@@ -283,3 +283,24 @@ class TestTag(zeit.cms.testing.FunctionalTestCase,
         proxied = zope.security.proxy.ProxyFactory(tag)
         proxied.weight = 7
 
+    def test_tags_with_same_code_should_be_equal(self):
+        t1 = self.get_tag('Mycode', label='Label 1')
+        t2 = self.get_tag('Mycode', label='Label 2')
+        self.assertEqual(t1, t2)
+
+    def test_tags_with_different_code_should_not_be_equal(self):
+        t1 = self.get_tag('Code 1', label='Label 1')
+        t2 = self.get_tag('Code 2', label='Label 2')
+        self.assertNotEqual(t1, t2)
+
+    def test_different_tag_class_with_same_code_should_be_equal(self):
+        import zeit.cms.tagging.interfaces
+        import zope.interface
+        class MyTagClass(object):
+            zope.interface.implements(zeit.cms.tagging.interfaces.ITag)
+            code = 'code'
+
+        t1 = self.get_tag('code', label='Code')
+        t2 = MyTagClass()
+        self.assertEqual(t1, t2)
+        self.assertEqual(t2, t1)

@@ -12,7 +12,6 @@ import zeit.connector.interfaces
 import zeit.intrafind.interfaces
 import zope.app.appsetup.product
 import zope.interface
-import zope.security.proxy
 
 
 NAMESPACE = "http://namespaces.zeit.de/CMS/tagging/"
@@ -138,7 +137,7 @@ class Tag(object):
         self.code = code
 
     def __eq__(self, other):
-        if zope.security.proxy.isinstance(other, Tag):
+        if zeit.cms.tagging.interfaces.ITag.providedBy(other):
             return other.code == self.code
         return NotImplemented
 
