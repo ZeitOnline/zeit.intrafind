@@ -122,7 +122,6 @@ class TagProperty(object):
             NAMESPACE + instance.code, key)
 
 
-
 class Tag(object):
 
     zope.interface.implements(zeit.intrafind.interfaces.ITag)
