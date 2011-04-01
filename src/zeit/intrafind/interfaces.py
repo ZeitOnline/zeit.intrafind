@@ -7,7 +7,7 @@ import zope.schema
 import zeit.cms.tagging.interfaces
 
 
-class ITag(zeit.cms.tagging.interfaces.ITag):
+class ITag(zeit.cms.tagging.interfaces.IAppliedTag):
     """A generic tag on an object."""
 
     status = zope.schema.Choice(
