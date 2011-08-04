@@ -7,7 +7,9 @@ import zope.schema
 import zeit.cms.tagging.interfaces
 
 
-class ITag(zeit.cms.tagging.interfaces.IAppliedTag):
+# XXX should IAppliedTag inherit from ITag? The distinction is not clear.
+class ITag(zeit.cms.tagging.interfaces.ITag,
+           zeit.cms.tagging.interfaces.IAppliedTag):
     """A generic tag on an object."""
 
     status = zope.schema.Choice(
