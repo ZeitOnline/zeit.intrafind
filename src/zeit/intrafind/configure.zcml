@@ -11,15 +11,4 @@
       />
   </class>
 
-  <class class=".tagger.Tag">
-    <require
-      interface=".interfaces.ITag"
-      permission="zope.View"
-      />
-    <require
-      set_schema=".interfaces.ITag"
-      permission="zeit.EditContent"
-      />
-  </class>
-
 </configure>

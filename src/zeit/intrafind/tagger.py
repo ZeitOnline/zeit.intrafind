@@ -6,15 +6,19 @@ import logging
 import lxml.objectify
 import urllib
 import urllib2
+import xml.sax.saxutils
 import zeit.cms.content.dav
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
-import zeit.intrafind.interfaces
 import zope.app.appsetup.product
 import zope.interface
 
 
-NAMESPACE = "http://namespaces.zeit.de/CMS/tagging/"
+NAMESPACE = "http://namespaces.zeit.de/CMS/tagging"
+KEYWORD_PROPERTY = ('rankedTags', NAMESPACE)
+DISABLED_PROPERTY = ('disabled', NAMESPACE)
+DISABLED_SEPARATOR = '\x09'
+
 log = logging.getLogger(__name__)
 
 
@@ -23,29 +27,19 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
     grokcore.component.implements(zeit.cms.tagging.interfaces.ITagger)
 
     def __iter__(self):
-        dav = zeit.connector.interfaces.IWebDAVProperties(self)
-        prefix_len = len(NAMESPACE)
-        # The world has seen more efficient code.
-        ids = set(namespace[prefix_len:] for (name, namespace) in dav
-                  if namespace.startswith(NAMESPACE))
-        tags = (self.get(code) for code in ids)
-        sorted_tags = sorted((tag for tag in tags if tag is not None),
-                             key=lambda tag: tag.weight,
-                             reverse=True)
-        return (tag.code for tag in sorted_tags)
+        tags = self._parse()
+        if tags is None:
+            return iter(())
+        return (x.get('uuid') for x in tags.iterchildren())
 
     def __len__(self):
         return len(list(self.__iter__()))
 
     def __getitem__(self, key):
-        dav = zeit.connector.interfaces.IWebDAVProperties(self)
-        tag = zope.component.queryMultiAdapter(
-            (self.context, key), zeit.intrafind.interfaces.ITag)
-        if tag is None:
-            raise KeyError(key)
-        # XXX tag doesn't provide ILocation, yet
-        tag.__name__ = key
+        node = self._find_tag_node(key)
+        tag = zeit.cms.tagging.tag.Tag(node.get('uuid'), unicode(node))
         tag.__parent__ = self
+        tag.__name__ = tag.code
         return tag
 
     def values(self):
@@ -64,8 +58,54 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         raise NotImplementedError()
 
     def __contains__(self, key):
+        return key in list(self)
+
+    def updateOrder(self, keys):
+        if set(keys) != set(self):
+            raise ValueError(
+                'Must pass in the same keys already present %r, not %r'
+                % (list(self), keys))
+        root = lxml.objectify.ElementMaker(namespace=NAMESPACE).rankedTags()
+        for key in keys:
+            node = self._find_tag_node(key)
+            root.append(node)
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
-        return ('label', NAMESPACE + key) in dav
+        dav[KEYWORD_PROPERTY] = lxml.etree.tostring(root)
+
+    def __delitem__(self, key):
+        node = self._find_tag_node(key)
+        node.getparent().remove(node)
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        dav[KEYWORD_PROPERTY] = lxml.etree.tostring(node.getroottree())
+
+        disabled = dav.get(DISABLED_PROPERTY)
+        if disabled is None:
+            disabled = []
+        else:
+            disabled = disabled.split(DISABLED_SEPARATOR)
+        disabled.append(key)
+        dav[DISABLED_PROPERTY] = DISABLED_SEPARATOR.join(disabled)
+
+    def _parse(self):
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        try:
+            tags = lxml.objectify.fromstring(dav.get(KEYWORD_PROPERTY, ''))
+        except lxml.etree.XMLSyntaxError:
+            return None
+        else:
+            return tags
+
+    def _find_tag_node(self, key):
+        tags = self._parse()
+        if tags is None:
+            raise KeyError(key)
+        node = tags.xpath('//tag[@uuid = {0}]'.format(
+                xml.sax.saxutils.quoteattr(key)))
+        if not node:
+            raise KeyError(key)
+        return node[0]
+
+    # XXX the update methods need to be rewritten for #9827
 
     def update(self):
         log.info('Updating tags for %s', self.context.uniqueId)
@@ -101,59 +141,3 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         config = zope.app.appsetup.product.getProductConfiguration(
             'zeit.intrafind')
         return config['tagger']
-
-
-class TagProperty(object):
-
-    def __init__(self, key):
-        self.key = key
-
-    def __get__(self, instance, class_):
-        prop = self._get_property(instance, self.key)
-        return prop.__get__(instance, class_)
-
-    def __set__(self, instance, value):
-        prop = self._get_property(instance, self.key)
-        return prop.__set__(instance, value)
-
-    def _get_property(self, instance, key):
-        return zeit.cms.content.dav.DAVProperty(
-            zeit.intrafind.interfaces.ITag[key],
-            NAMESPACE + instance.code, key)
-
-
-class Tag(object):
-
-    zope.interface.implements(zeit.intrafind.interfaces.ITag)
-
-    for _attr in ('label', 'status', 'frequency', 'score', 'disabled',
-                  'type', 'weight'):
-        locals()[_attr] = TagProperty(_attr)
-    del _attr
-
-    def __init__(self, context, code):
-        self.context = context
-        self.code = code
-
-    def __eq__(self, other):
-        if zeit.cms.tagging.interfaces.ITag.providedBy(other):
-            return other.code == self.code
-        return NotImplemented
-
-    def __hash__(self):
-        return hash(self.code)
-
-
-@grokcore.component.adapter(zeit.cms.interfaces.ICMSContent, basestring)
-@grokcore.component.implementer(zeit.intrafind.interfaces.ITag)
-def existing_tag_factory(context, code):
-    tag = Tag(context, code)
-    if not tag.label:
-        return None
-    return tag
-
-
-@grokcore.component.adapter(Tag)
-@grokcore.component.implementer(zeit.connector.interfaces.IWebDAVProperties)
-def tag_webdavproperties(context):
-    return zeit.connector.interfaces.IWebDAVProperties(context.context, None)

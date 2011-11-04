@@ -1,9 +1,10 @@
+# coding: utf-8
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
 import mock
 import pkg_resources
-import unittest2
+import unittest2 as unittest
 import zeit.cms.testing
 import zeit.intrafind.testing
 
@@ -14,18 +15,14 @@ class TagTestHelpers(object):
         from zeit.cms.testcontenttype.testcontenttype import TestContentType
         return TestContentType()
 
-    def set_tag(self, content, id, **kw):
+    def set_tags(self, content, xml):
         from zeit.connector.interfaces import IWebDAVProperties
         dav = IWebDAVProperties(content)
-        for key, value in kw.items():
-            dav_key = (
-                key, 'http://namespaces.zeit.de/CMS/tagging/{0}'.format(id))
-            dav[dav_key] = value
+        dav_key = ('rankedTags', 'http://namespaces.zeit.de/CMS/tagging')
+        dav[dav_key] = '<rankedTags>{0}</rankedTags>'.format(xml)
 
 
-class TestTagger(zeit.cms.testing.FunctionalTestCase,
-                 unittest2.TestCase,
-                 TagTestHelpers):
+class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
     layer = zeit.intrafind.testing.layer
 
@@ -39,6 +36,159 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         self.assertTrue(
             zope.interface.verify.verifyObject(
                 ITagger, self.get_tagger(self.get_content())))
+
+    def test_tagger_should_be_empty_if_not_tagged(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertEqual([], list(tagger))
+
+    def test_tagger_should_get_tags_from_content(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual(set(['uid-berlin', 'uid-karenduve']), set(tagger))
+
+    def test_len_should_return_amount_of_tags(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual(2, len(tagger))
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+<tag uuid="uid-fleisch">Fleisch</tag>
+""")
+        self.assertEqual(3, len(tagger))
+
+    def test_tags_should_be_accessible_by_id(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        tag = tagger['uid-karenduve']
+        self.assertEqual(tagger, tag.__parent__)
+        self.assertEqual('uid-karenduve', tag.__name__)
+        self.assertEqual('Karen Duve', tag.label)
+
+    def test_getitem_should_raise_keyerror_if_tag_does_not_exist(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertRaises(KeyError, lambda: tagger['foo'])
+
+    def test_iter_should_be_sorted_by_document_order(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-berlin">Berlin</tag>
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-fleisch">Fleisch</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual(
+            ['uid-berlin', 'uid-karenduve', 'uid-fleisch'], list(tagger))
+
+    def test_updateOrder_should_sorted_tags(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-berlin">Berlin</tag>
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-fleisch">Fleisch</tag>
+""")
+        tagger = self.get_tagger(content)
+        tagger.updateOrder(['uid-fleisch', 'uid-berlin', 'uid-karenduve'])
+        self.assertEqual(
+            ['uid-fleisch', 'uid-berlin', 'uid-karenduve'], list(tagger))
+
+    def test_given_keys_differ_from_existing_keys_should_raise(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-berlin">Berlin</tag>
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-fleisch">Fleisch</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertRaises(
+            ValueError,
+            lambda: tagger.updateOrder(['uid-berlin', 'uid-karenduve']))
+
+    def test_contains_should_return_true_for_existing_tag(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertIn('uid-karenduve', tagger)
+
+    def test_contains_should_return_false_for_noneexisting_tag(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertNotIn('uid-karenduve', tagger)
+
+    def test_get_should_return_existing_tag(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual('Karen Duve', tagger.get('uid-karenduve').label)
+
+    def test_get_should_return_default_if_tag_does_not_exist(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        self.assertEqual(mock.sentinel.default,
+                         tagger.get('uid-karenduve', mock.sentinel.default))
+
+    def test_delitem_should_remove_tag(self):
+        content = self.get_content()
+        # use an umlaut to exercise serialization
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Düve</tag>
+""")
+        tagger = self.get_tagger(content)
+        del tagger['uid-karenduve']
+        self.assertNotIn('uid-karenduve', tagger)
+
+    def test_delitem_should_add_tag_to_disabled_list_in_dav(self):
+        from zeit.connector.interfaces import IWebDAVProperties
+
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+""")
+        tagger = self.get_tagger(content)
+        del tagger['uid-karenduve']
+
+        dav = IWebDAVProperties(content)
+        dav_key = ('disabled', 'http://namespaces.zeit.de/CMS/tagging')
+        self.assertEqual('uid-karenduve', dav[dav_key])
+
+    def test_disabled_tags_should_be_separated_by_tab(self):
+        from zeit.connector.interfaces import IWebDAVProperties
+
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        del tagger['uid-karenduve']
+
+        dav = IWebDAVProperties(content)
+        dav_key = ('disabled', 'http://namespaces.zeit.de/CMS/tagging')
+        self.assertEqual('uid-karenduve', dav[dav_key])
+
+
+@unittest.skip('not yet implemented')
+class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
+
+    layer = zeit.intrafind.testing.layer
 
     def test_update_should_post_xml_urlencoded_to_intrafind(self):
         handler = zeit.intrafind.testing.RequestHandler
@@ -127,180 +277,3 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase,
         dav = IWebDAVProperties(content)
         self.assertIn(
             ('disabled', 'http://namespaces.zeit.de/CMS/tagging/Berlin'), dav)
-
-    def test_tagger_should_be_empty_if_not_tagged(self):
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        self.assertEqual([], list(tagger))
-
-    def test_tagger_should_get_tags_from_content(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
-        self.set_tag(content, id='Berlin', label='Berlin')
-        tagger = self.get_tagger(content)
-        self.assertEqual(set(['Berlin', 'Karen+Duve']), set(tagger))
-
-    def test_len_should_return_amount_of_tags(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
-        self.set_tag(content, id='Berlin', label='Berlin')
-        tagger = self.get_tagger(content)
-        self.assertEqual(2, len(tagger))
-        self.set_tag(content, id='Fleisch', label='Fleisch')
-        self.assertEqual(3, len(tagger))
-
-    def test_tags_should_be_accessible_by_id(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
-        self.set_tag(content, id='Berlin', label='Berlin')
-        tagger = self.get_tagger(content)
-        tag = tagger['Karen+Duve']
-        self.assertEqual(tagger, tag.__parent__)
-        self.assertEqual('Karen+Duve', tag.__name__)
-        self.assertEqual('Karen Duve', tag.label)
-
-    def test_getitem_should_raise_keyerror_if_tag_does_not_exist(self):
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        self.assertRaises(KeyError, lambda: tagger['foo'])
-
-    def test_remove_should_disable_tag(self):
-        pass
-
-    def test_add_should_enable_tag(self):
-        pass
-
-    def test_iter_should_be_sorted_by_weight(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve',
-                     weight='20')
-        self.set_tag(content, id='Berlin', label='Berlin', weight='2')
-        self.set_tag(content, id='Politik', label='Politik', weight='5')
-        tagger = self.get_tagger(content)
-        self.assertEqual(['Karen+Duve', 'Politik', 'Berlin'], list(tagger))
-
-    def test_iter_should_sort_non_weighted_to_the_end(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve',
-                     weight='20')
-        self.set_tag(content, id='Berlin', label='Berlin', weight='2')
-        self.set_tag(content, id='Politik', label='Politik')
-        tagger = self.get_tagger(content)
-        self.assertEqual(['Karen+Duve', 'Berlin', 'Politik'], list(tagger))
-
-    def test_iter_should_not_yield_tags_with_only_disabled_property(self):
-        from zeit.connector.interfaces import IWebDAVProperties
-        content = self.get_content()
-        dav = IWebDAVProperties(content)
-        dav[('disabled', 'http://namespaces.zeit.de/CMS/tagging/Berlin')] = (
-            'yes')
-        tagger = self.get_tagger(content)
-        self.assertEqual([], list(tagger))
-
-    def test_contains_should_return_true_for_existing_tag(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
-        tagger = self.get_tagger(content)
-        self.assertIn('Karen+Duve', tagger)
-
-    def test_contains_should_return_false_for_non_existing_tag(self):
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        self.assertNotIn('Karen+Duve', tagger)
-
-    def test_get_should_return_existing_tag(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
-        tagger = self.get_tagger(content)
-        self.assertEqual('Karen Duve', tagger.get('Karen+Duve').label)
-
-    def test_get_should_return_default_if_tag_does_not_exist(self):
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        self.assertEqual(mock.sentinel.default,
-                         tagger.get('Karen+Duve', mock.sentinel.default))
-
-
-
-class TestTag(zeit.cms.testing.FunctionalTestCase,
-              unittest2.TestCase,
-              TagTestHelpers):
-
-    layer = zeit.intrafind.testing.layer
-
-    def get_tag(self, code, **kw):
-        from zeit.intrafind.tagger import existing_tag_factory
-        content = self.get_content()
-        self.set_tag(content, code, **kw)
-        return existing_tag_factory(content, code)
-
-    def test_tag_should_implement_interface(self):
-        from zope.interface.verify import verifyObject
-        from zeit.intrafind.interfaces import ITag
-        self.assertTrue(
-            verifyObject(ITag, self.get_tag('code', label='Label')))
-
-    def test_tag_factory_should_return_none_if_there_is_no_label(self):
-        self.assertIsNone(self.get_tag('code'))
-
-    def test_tag_factory_should_return_tag_if_there_is_a_label(self):
-        self.assertIsNotNone(self.get_tag('code', label='Label'))
-
-    def test_label_should_be_readable_if_proxied(self):
-        import zope.security.proxy
-        tag = self.get_tag('Hamburg', label='Hamburg')
-        tag.__parent__ = self.getRootFolder()
-        proxied = zope.security.proxy.ProxyFactory(tag)
-        self.assertEqual('Hamburg', proxied.label)
-
-    def test_disabled_should_be_settable(self):
-        from zeit.connector.interfaces import IWebDAVProperties
-        tag = self.get_tag('Bielefeld', label='Bielefeld')
-        tag.disabled = True
-        dav = IWebDAVProperties(tag)
-        self.assertIn(
-            ('disabled', 'http://namespaces.zeit.de/CMS/tagging/Bielefeld'),
-            dict(dav))
-        self.assertEqual(
-            'yes',
-            dav[('disabled', 'http://namespaces.zeit.de/CMS/tagging/Bielefeld')])
-
-    def test_same_code_should_have_same_hash(self):
-        tag1 = self.get_tag('Rotterdam', label='Rotterdam')
-        tag2= self.get_tag('Rotterdam', label="R'dam")
-        self.assertEqual(hash(tag1), hash(tag2))
-
-    def test_different_code_should_have_different_hash(self):
-        tag1 = self.get_tag('Rotterdam', label='Rotterdam')
-        tag2= self.get_tag("R'dam", label='Rotterdam')
-        self.assertNotEqual(hash(tag1), hash(tag2))
-
-    def test_weight_should_be_settable_with_permission(self):
-        from zeit.cms.workingcopy.interfaces import IWorkingcopy
-        import zope.security.proxy
-        tag = self.get_tag('Hamburg', label='Hamburg')
-        tag.__parent__ = IWorkingcopy(None)
-        proxied = zope.security.proxy.ProxyFactory(tag)
-        proxied.weight = 7
-
-    def test_tags_with_same_code_should_be_equal(self):
-        t1 = self.get_tag('Mycode', label='Label 1')
-        t2 = self.get_tag('Mycode', label='Label 2')
-        self.assertEqual(t1, t2)
-
-    def test_tags_with_different_code_should_not_be_equal(self):
-        t1 = self.get_tag('Code 1', label='Label 1')
-        t2 = self.get_tag('Code 2', label='Label 2')
-        self.assertNotEqual(t1, t2)
-
-    def test_different_tag_class_with_same_code_should_be_equal(self):
-        import zeit.cms.tagging.interfaces
-        import zope.interface
-        class MyTagClass(object):
-            zope.interface.implements(zeit.cms.tagging.interfaces.ITag)
-            code = 'code'
-
-        t1 = self.get_tag('code', label='Code')
-        t2 = MyTagClass()
-        self.assertEqual(t1, t2)
-        self.assertEqual(t2, t1)
