@@ -65,12 +65,15 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             raise ValueError(
                 'Must pass in the same keys already present %r, not %r'
                 % (list(self), keys))
-        root = lxml.objectify.ElementMaker(namespace=NAMESPACE).rankedTags()
+        orderd = []
+        tags = self._parse()
         for key in keys:
-            node = self._find_tag_node(key)
-            root.append(node)
+            tag = self._find_tag_node(key, tags)
+            orderd.append(tag)
+            tags.remove(tag)
+        tags.extend(orderd)
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
-        dav[KEYWORD_PROPERTY] = lxml.etree.tostring(root)
+        dav[KEYWORD_PROPERTY] = lxml.etree.tostring(tags.getroottree())
 
     def __delitem__(self, key):
         node = self._find_tag_node(key)
@@ -92,11 +95,13 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             tags = lxml.objectify.fromstring(dav.get(KEYWORD_PROPERTY, ''))
         except lxml.etree.XMLSyntaxError:
             return None
-        else:
-            return tags
+        if tags.tag != '{{{1}}}{0}'.format(*KEYWORD_PROPERTY):
+            return None
+        return tags.getchildren()[0]
 
-    def _find_tag_node(self, key):
-        tags = self._parse()
+    def _find_tag_node(self, key, tags=None):
+        if tags is None:
+            tags = self._parse()
         if tags is None:
             raise KeyError(key)
         node = tags.xpath('//tag[@uuid = {0}]'.format(

@@ -18,8 +18,12 @@ class TagTestHelpers(object):
     def set_tags(self, content, xml):
         from zeit.connector.interfaces import IWebDAVProperties
         dav = IWebDAVProperties(content)
-        dav_key = ('rankedTags', 'http://namespaces.zeit.de/CMS/tagging')
-        dav[dav_key] = '<rankedTags>{0}</rankedTags>'.format(xml)
+        name, ns = dav_key = (
+            'rankedTags', 'http://namespaces.zeit.de/CMS/tagging')
+        dav[dav_key] = """<ns:{tag} xmlns:ns="{ns}">
+        <rankedTags>{0}</rankedTags></ns:{tag}>""".format(
+            xml, ns=ns, tag=name)
+
 
 
 class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
@@ -183,6 +187,16 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         dav = IWebDAVProperties(content)
         dav_key = ('disabled', 'http://namespaces.zeit.de/CMS/tagging')
         self.assertEqual('uid-karenduve', dav[dav_key])
+
+    def test_parse_should_return_inner_rankedTags(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        node = tagger._parse()
+        self.assertEqual('rankedTags', node.tag)
 
 
 @unittest.skip('not yet implemented')
