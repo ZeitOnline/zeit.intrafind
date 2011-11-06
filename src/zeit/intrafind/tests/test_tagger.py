@@ -222,7 +222,7 @@ class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         tagger.update()
         self.assertEqual(1, len(handler.posts_received))
         self.assertTrue(handler.posts_received[0]['data'].startswith(
-            'content=%3C%3Fxml+version'))
+            'xml=%3C%3Fxml+version'))
 
     def test_update_should_extract_tags_from_response(self):
         handler = zeit.intrafind.testing.RequestHandler

@@ -114,7 +114,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
     def update(self):
         log.info('Updating tags for %s', self.context.uniqueId)
         body = zeit.connector.interfaces.IResource(self.context).data.read()
-        data = urllib.urlencode(dict(content=body))
+        data = urllib.urlencode(dict(xml=body))
         response = urllib2.urlopen(self._intrafind_url, data, 10)
         __traceback_info__ = (response.code,)
         xml = lxml.objectify.fromstring(response.read())
