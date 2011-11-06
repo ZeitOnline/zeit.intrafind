@@ -110,36 +110,22 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             raise KeyError(key)
         return node[0]
 
-    # XXX the update methods need to be rewritten for #9827
-
     def update(self):
         log.info('Updating tags for %s', self.context.uniqueId)
         body = zeit.connector.interfaces.IResource(self.context).data.read()
         data = urllib.urlencode(dict(content=body))
         response = urllib2.urlopen(self._intrafind_url, data, 10)
-        xml = lxml.objectify.parse(response)
-        self._clear()
+        xml = lxml.objectify.fromstring(response.read())
         self._load_from(xml)
 
-    def _clear(self):
-        dav = zeit.connector.interfaces.IWebDAVProperties(self)
-        for code in list(self):
-            remove_namespace = NAMESPACE + code
-            for name, namespace in list(dav.keys()):
-                if namespace == remove_namespace and name != 'disabled':
-                    del dav[(name, namespace)]
-
     def _load_from(self, xml):
-        for tag_xml in xml.findall('//tag'):
-            code = tag_xml.get('id')
-            tag = Tag(self.context, code)
-            label = unicode(tag_xml).strip()
-            tag.label = label
-            assert label == tag.label
-            tag.frequency = tag_xml.get('freq')
-            tag.score = tag_xml.get('score')
-            tag.status = tag_xml.get('status')
-            tag.type = tag_xml.get('type')
+        root = lxml.objectify.ElementMaker(namespace=NAMESPACE).rankedTags()
+        tags = xml.find('rankedTags')
+        if tags is not None:
+            root.append(xml['rankedTags'])
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        dav[KEYWORD_PROPERTY] = lxml.etree.tostring(root.getroottree())
+        dav[DISABLED_PROPERTY] = u''
 
     @property
     def _intrafind_url(self):

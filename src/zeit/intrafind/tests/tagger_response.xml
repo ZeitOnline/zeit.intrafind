@@ -1,45 +1,109 @@
 <?xml version="1.0" ?>
-<tagResults date-create="Tue Feb 01 13:26:40 CET 2011">
+<tagResults date-create="Sat Nov 05 11:42:24 CET 2011">
   <tagResult size="5" source="com.intraf.tagging.NERTagger">
-    <tag freq="4" id="Kairo" status="known" type="Location">
-      Kairo
+    <tag freq="1" id="nast" status="new" type="Person">
+      Nast
     </tag>
-    <tag freq="3" id="Hosni+Mubarak" status="new" type="Person">
-      Hosni Mubarak
+    <tag freq="1" id="anna-marohn" status="new" type="Person">
+      Anna Marohn
     </tag>
-    <tag freq="2" id="Navi+Pillay" status="new" type="Person">
-      Navi Pillay
+    <tag freq="1" id="new-york" status="known" type="Location">
+      New York
     </tag>
-    <tag freq="1" id="Hauptstadt" status="known" type="Location">
-      Hauptstadt
+    <tag freq="1" id="deutschland" status="known" type="Location">
+      Deutschland
     </tag>
-    <tag freq="1" id="Anh" status="new" type="Location">
-      Anh
-    </tag>
-  </tagResult>
-  <tagResult size="2" source="com.intraf.tagging.TopicTagger">
-    <tag id="Innenpolitik" score="0.67924225" status="known" type="topic">
-      Innenpolitik
-    </tag>
-    <tag id="Politik" score="0.67924225" status="known" type="topic">
-      Politik
+    <tag freq="1" id="amerika" status="known" type="Location">
+      USA
     </tag>
   </tagResult>
-  <tagResult size="5" source="com.intraf.tagging.KeywordTagger">
-    <tag id="Alexandria" score="1.0" status="known" type="free">
-      Alexandria
+  <tagResult size="0" source="com.intraf.tagging.TopicTagger"/>
+  <tagResult size="20" source="com.intraf.tagging.KeywordTagger">
+    <tag id="reims" score="1.0" status="known" type="free">
+      Reims
     </tag>
-    <tag id="Muslimbruderschaft" score="1.0" status="known" type="free">
-      Muslimbruderschaft
+    <tag id="feiertag" score="1.0" status="known" type="free">
+      Feiertag
     </tag>
-    <tag id="Sender" score="1.0" status="known" type="free">
-      Sender
+    <tag id="kuendigungen" score="1.0" status="known" type="free">
+      Kündigungen
     </tag>
-    <tag id="Tahrir-Platz" score="1.0" status="new" type="free">
-      Tahrir-Platz
+    <tag id="Silikon-Geschenk" score="1.0" status="new" type="free">
+      Silikon-Geschenk
     </tag>
-    <tag id="Demonstrant" score="0.95733666" status="new" type="free">
-      Demonstrant
+    <tag id="Sport-B%C3%BCstenhalter" score="1.0" status="new" type="free">
+      Sport-Büstenhalter
+    </tag>
+    <tag id="pfandbon" score="1.0" status="new" type="free">
+      Pfandbon
+    </tag>
+    <tag id="bluse" score="0.96474266" status="new" type="free">
+      Bluse
+    </tag>
+    <tag id="frikadelle" score="0.89697146" status="new" type="free">
+      Frikadelle
+    </tag>
+    <tag id="post" score="0.87987274" status="known" type="free">
+      Post
+    </tag>
+    <tag id="arbeitsrechtler" score="0.8539238" status="new" type="free">
+      Arbeitsrechtler
+    </tag>
+    <tag id="vorladung" score="0.8364645" status="new" type="free">
+      Vorladung
+    </tag>
+    <tag id="kinderstube" score="0.81679386" status="new" type="free">
+      Kinderstube
+    </tag>
+    <tag id="weihnachtsgeschenk" score="0.7946835" status="new" type="free">
+      Weihnachtsgeschenk
+    </tag>
+    <tag id="angewohnheit" score="0.77513415" status="new" type="free">
+      Angewohnheit
+    </tag>
+    <tag id="personalabteilung" score="0.773903" status="new" type="free">
+      Personalabteilung
+    </tag>
+    <tag id="herz" score="0.7646987" status="known" type="free">
+      Herz
+    </tag>
+    <tag id="verlag" score="0.7378412" status="known" type="free">
+      Verlag
+    </tag>
+    <tag id="glamour" score="0.6961383" status="new" type="free">
+      Glamour
+    </tag>
+    <tag id="menschenverstand" score="0.68193203" status="new" type="free">
+      Menschenverstand
+    </tag>
+    <tag id="geschichte" score="0.67078084" status="known" type="free">
+      Geschichte
     </tag>
   </tagResult>
+  <force_load_tag_id>
+    37923
+  </force_load_tag_id>
+  <force_load_tag_id>
+    29191
+  </force_load_tag_id>
+  <rankedTags>
+    <tag score="4" type="free" url_value="feiertag" uuid="aa23f170-65a2-4a00-8fec-006a3b4b73d2">
+      Feiertag
+    </tag>
+    <tag score="3" type="Location" url_value="usa" uuid="7d8274b9-2499-460e-a0e1-3d569e365304">
+      USA
+    </tag>
+    <tag score="2" type="free" url_value="post" uuid="23d6d2da-3d6c-4898-93ea-7b1401b193a0">
+      Post
+    </tag>
+    <tag score="1" type="Location" url_value="verlag" uuid="5490888a-48fa-4b47-8a81-0a3f4148c29c">
+      Verlag
+    </tag>
+    <tag score="1" type="Location" url_value="new-york" uuid="cbe42c41-4c60-4ece-a03b-c1b57abfb4a9">
+      New York
+    </tag>
+    <tag score="1" type="Location" url_value="reims" uuid="4b750946-fcd1-4844-a5be-29bdce3b1a8b">
+      Reims
+    </tag>
+  </rankedTags>
 </tagResults>

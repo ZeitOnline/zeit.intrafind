@@ -24,15 +24,14 @@ class TagTestHelpers(object):
         <rankedTags>{0}</rankedTags></ns:{tag}>""".format(
             xml, ns=ns, tag=name)
 
+    def get_tagger(self, content):
+        from zeit.intrafind.tagger import Tagger
+        return Tagger(content)
 
 
 class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
     layer = zeit.intrafind.testing.layer
-
-    def get_tagger(self, content):
-        from zeit.intrafind.tagger import Tagger
-        return Tagger(content)
 
     def test_tagger_should_provide_interface(self):
         import zope.interface.verify
@@ -199,7 +198,6 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         self.assertEqual('rankedTags', node.tag)
 
 
-@unittest.skip('not yet implemented')
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
     layer = zeit.intrafind.testing.layer
@@ -220,74 +218,16 @@ class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         content = self.get_content()
         tagger = self.get_tagger(content)
         tagger.update()
-        self.assertEqual(12, len(tagger))
+        self.assertEqual(6, len(tagger))
 
-    def test_update_should_store_frequency(self):
-        handler = zeit.intrafind.testing.RequestHandler
-        handler.response_body = pkg_resources.resource_string(
-            __name__, 'tagger_response.xml')
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        tagger.update()
-        self.assertEqual(4, tagger['Kairo'].frequency)
-        self.assertEqual(1, tagger['Hauptstadt'].frequency)
-        self.assertIsNone(tagger['Innenpolitik'].frequency)
-
-    def test_update_should_store_score(self):
-        handler = zeit.intrafind.testing.RequestHandler
-        handler.response_body = pkg_resources.resource_string(
-            __name__, 'tagger_response.xml')
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        tagger.update()
-        self.assertEqual(0.67924225, tagger['Politik'].score)
-        self.assertIsNone(tagger['Kairo'].score)
-
-    def test_update_should_store_status(self):
-        handler = zeit.intrafind.testing.RequestHandler
-        handler.response_body = pkg_resources.resource_string(
-            __name__, 'tagger_response.xml')
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        tagger.update()
-        self.assertEqual('known', tagger['Alexandria'].status)
-        self.assertEqual('new', tagger['Demonstrant'].status)
-
-    def test_update_should_store_type(self):
-        handler = zeit.intrafind.testing.RequestHandler
-        handler.response_body = pkg_resources.resource_string(
-            __name__, 'tagger_response.xml')
-        content = self.get_content()
-        tagger = self.get_tagger(content)
-        tagger.update()
-        self.assertEqual('topic', tagger['Politik'].type)
-        self.assertEqual('free', tagger['Demonstrant'].type)
-        self.assertEqual('Person', tagger['Hosni+Mubarak'].type)
-
-    def test_update_should_remove_tags_not_in_response(self):
-        handler = zeit.intrafind.testing.RequestHandler
-        handler.response_body = pkg_resources.resource_string(
-            __name__, 'tagger_response.xml')
-        content = self.get_content()
-        self.set_tag(content, id='Hamburg', label='Hamburg')
-        tagger = self.get_tagger(content)
-        tagger.update()
-        self.assertNotIn('Hamburg', tagger)
-
-    def test_clear_should_remove_all_tags(self):
-        content = self.get_content()
-        self.set_tag(content, id='Karen+Duve', label='Karen Duve')
-        self.set_tag(content, id='Berlin', label='Berlin')
-        tagger = self.get_tagger(content)
-        tagger._clear()
-        self.assertEqual([], list(tagger))
-
-    def test_clear_should_keep_disabled_property(self):
+    def test_update_should_clear_disabled_tags(self):
         from zeit.connector.interfaces import IWebDAVProperties
         content = self.get_content()
-        self.set_tag(content, id='Berlin', label='Berlin', disabled='yes')
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>""")
         tagger = self.get_tagger(content)
-        tagger._clear()
+        del tagger['uid-karenduve']
+        tagger.update()
         dav = IWebDAVProperties(content)
-        self.assertIn(
-            ('disabled', 'http://namespaces.zeit.de/CMS/tagging/Berlin'), dav)
+        dav_key = ('disabled', 'http://namespaces.zeit.de/CMS/tagging')
+        self.assertEqual('', dav[dav_key])
