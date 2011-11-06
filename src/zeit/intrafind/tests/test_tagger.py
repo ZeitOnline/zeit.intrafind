@@ -97,7 +97,7 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         self.assertEqual(
             ['uid-berlin', 'uid-karenduve', 'uid-fleisch'], list(tagger))
 
-    def test_updateOrder_should_sorted_tags(self):
+    def test_updateOrder_should_sort_tags(self):
         content = self.get_content()
         self.set_tags(content, """
 <tag uuid="uid-berlin">Berlin</tag>
@@ -106,6 +106,19 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 """)
         tagger = self.get_tagger(content)
         tagger.updateOrder(['uid-fleisch', 'uid-berlin', 'uid-karenduve'])
+        self.assertEqual(
+            ['uid-fleisch', 'uid-berlin', 'uid-karenduve'], list(tagger))
+
+    def test_updateOrder_should_sort_tags_even_when_keys_are_generator(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-berlin">Berlin</tag>
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-fleisch">Fleisch</tag>
+""")
+        tagger = self.get_tagger(content)
+        tagger.updateOrder(
+            iter(['uid-fleisch', 'uid-berlin', 'uid-karenduve']))
         self.assertEqual(
             ['uid-fleisch', 'uid-berlin', 'uid-karenduve'], list(tagger))
 

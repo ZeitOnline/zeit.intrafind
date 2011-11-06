@@ -61,6 +61,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         return key in list(self)
 
     def updateOrder(self, keys):
+        keys = list(keys)  # in case we've got a generator
         if set(keys) != set(self):
             raise ValueError(
                 'Must pass in the same keys already present %r, not %r'
@@ -115,6 +116,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         body = zeit.connector.interfaces.IResource(self.context).data.read()
         data = urllib.urlencode(dict(content=body))
         response = urllib2.urlopen(self._intrafind_url, data, 10)
+        __traceback_info__ = (response.code,)
         xml = lxml.objectify.fromstring(response.read())
         self._load_from(xml)
 
