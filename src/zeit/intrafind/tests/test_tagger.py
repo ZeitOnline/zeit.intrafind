@@ -4,7 +4,6 @@
 
 import mock
 import pkg_resources
-import unittest2 as unittest
 import zeit.cms.testing
 import zeit.intrafind.testing
 
