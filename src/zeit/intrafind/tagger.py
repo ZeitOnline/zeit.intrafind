@@ -7,6 +7,7 @@ import lxml.objectify
 import urllib
 import urllib2
 import xml.sax.saxutils
+import zeit.cms.checkout.interfaces
 import zeit.cms.content.dav
 import zeit.cms.content.interfaces
 import zeit.cms.tagging.interfaces
@@ -142,3 +143,18 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
 def veto_tagging_properties(event):
     if event.namespace == NAMESPACE:
         event.veto()
+
+
+@grokcore.component.subscribe(
+    zeit.cms.content.interfaces.IXMLRepresentation,
+    zeit.cms.checkout.interfaces.IBeforeCheckinEvent)
+def add_ranked_tags_to_head(content, event):
+    tagger = zeit.cms.tagging.interfaces.ITagger(content, None)
+    if tagger:
+        content.xml.head.rankedTags = tagger._parse()
+    else:
+        try:
+            del content.xml.head.rankedTags
+        except AttributeError:
+            pass
+

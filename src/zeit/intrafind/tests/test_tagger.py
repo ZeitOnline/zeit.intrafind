@@ -226,6 +226,50 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
             unicode(a) for a in content.xml.head.attribute[:])
         self.assertNotIn('rankedTags', dav_attribs)
 
+    def test_existing_tags_should_cause_rankedTags_to_be_added_to_xml(self):
+        import zope.component
+        import zeit.cms.repository.interfaces
+        import zeit.cms.checkout.helper
+        repository = zope.component.getUtility(
+            zeit.cms.repository.interfaces.IRepository)
+        repository['content'] = self.get_content()
+        with zeit.cms.checkout.helper.checked_out(repository['content']) as \
+                content:
+            self.set_tags(content, """
+    <tag uuid="uid-karenduve">Karen Duve</tag>
+    <tag uuid="uid-berlin">Berlin</tag>
+    """)
+        self.assertEqual(
+            ['Karen Duve', 'Berlin'],
+            repository['content'].xml.head.rankedTags.getchildren())
+
+    def test_no_tags_cause_rankedTags_element_to_be_removed_from_xml(self):
+        import zope.component
+        import zeit.cms.repository.interfaces
+        import zeit.cms.checkout.helper
+        content = self.get_content()
+        content.xml.head.rankedTags = 'bla bla bla'
+        repository = zope.component.getUtility(
+            zeit.cms.repository.interfaces.IRepository)
+        repository['content'] = content
+        with zeit.cms.checkout.helper.checked_out(repository['content']):
+            # cycle
+            pass
+        self.assertNotIn('rankedTags', repository['content'].xml.head.keys())
+
+    def test_checkin_should_not_fail_with_no_tags_and_no_rankedTags_element(
+        self):
+        import zope.component
+        import zeit.cms.repository.interfaces
+        import zeit.cms.checkout.helper
+        repository = zope.component.getUtility(
+            zeit.cms.repository.interfaces.IRepository)
+        repository['content'] = self.get_content()
+        with zeit.cms.checkout.helper.checked_out(repository['content']):
+            # cycle
+            pass
+
+
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
