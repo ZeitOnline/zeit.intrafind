@@ -8,6 +8,7 @@ import urllib
 import urllib2
 import xml.sax.saxutils
 import zeit.cms.content.dav
+import zeit.cms.content.interfaces
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
 import zope.app.appsetup.product
@@ -134,3 +135,10 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         config = zope.app.appsetup.product.getProductConfiguration(
             'zeit.intrafind')
         return config['tagger']
+
+
+@grokcore.component.subscribe(
+    zeit.cms.content.interfaces.ISynchronisingDAVPropertyToXMLEvent)
+def veto_tagging_properties(event):
+    if event.namespace == NAMESPACE:
+        event.veto()

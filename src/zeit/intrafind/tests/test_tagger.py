@@ -210,6 +210,22 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         node = tagger._parse()
         self.assertEqual('rankedTags', node.tag)
 
+    def test_rankedKeys_dav_property_should_not_be_added_to_xml(self):
+        import zeit.cms.content.interfaces
+        import zope.interface
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        zope.interface.alsoProvides(
+            content, zeit.cms.content.interfaces.IDAVPropertiesInXML)
+        sync = zeit.cms.content.interfaces.IDAVPropertyXMLSynchroniser(content)
+        sync.sync()
+        dav_attribs = u'\n'.join(
+            unicode(a) for a in content.xml.head.attribute[:])
+        self.assertNotIn('rankedTags', dav_attribs)
+
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
