@@ -14,6 +14,7 @@ import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
 import zope.app.appsetup.product
 import zope.interface
+import zope.security.proxy
 
 
 NAMESPACE = "http://namespaces.zeit.de/CMS/tagging"
@@ -150,11 +151,12 @@ def veto_tagging_properties(event):
     zeit.cms.checkout.interfaces.IBeforeCheckinEvent)
 def add_ranked_tags_to_head(content, event):
     tagger = zeit.cms.tagging.interfaces.ITagger(content, None)
+    xml = zope.security.proxy.removeSecurityProxy(content.xml)
     if tagger:
-        content.xml.head.rankedTags = tagger._parse()
+        xml.head.rankedTags = zope.security.proxy.removeSecurityProxy(
+                tagger)._parse()
     else:
         try:
-            del content.xml.head.rankedTags
+            del xml.head.rankedTags
         except AttributeError:
             pass
-
