@@ -268,6 +268,24 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
             # cycle
             pass
 
+    def test_disabled_tags_should_be_removed_from_xml(self):
+        import zope.component
+        import zeit.cms.repository.interfaces
+        import zeit.cms.checkout.helper
+        repository = zope.component.getUtility(
+            zeit.cms.repository.interfaces.IRepository)
+        repository['content'] = self.get_content()
+        with zeit.cms.checkout.helper.checked_out(repository['content']) as \
+                content:
+            self.set_tags(content, """
+    <tag uuid="uid-karenduve">Karen Duve</tag>
+    <tag uuid="uid-berlin">Berlin</tag>
+    """)
+            tagger = self.get_tagger(content)
+            del tagger['uid-berlin']
+        self.assertEqual(
+            ['Karen Duve'],
+            repository['content'].xml.head.rankedTags.getchildren())
 
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
