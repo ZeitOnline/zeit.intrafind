@@ -287,6 +287,25 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
             ['Karen Duve'],
             repository['content'].xml.head.rankedTags.getchildren())
 
+    def test_rankedTags_in_xml_should_be_updated_on_modified_event(self):
+        import zeit.cms.checkout.helper
+        import zeit.cms.repository.interfaces
+        import zope.component
+        import zope.lifecycleevent
+        repository = zope.component.getUtility(
+            zeit.cms.repository.interfaces.IRepository)
+        repository['content'] = self.get_content()
+        with zeit.cms.checkout.helper.checked_out(repository['content']) as \
+                content:
+            self.set_tags(content, """
+    <tag uuid="uid-karenduve">Karen Duve</tag>
+    <tag uuid="uid-berlin">Berlin</tag>
+    """)
+            zope.lifecycleevent.modified(content)
+            self.assertEqual(
+                ['Karen Duve', 'Berlin'],
+                content.xml.head.rankedTags.getchildren())
+
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 

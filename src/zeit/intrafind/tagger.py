@@ -14,6 +14,7 @@ import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
 import zope.app.appsetup.product
 import zope.interface
+import zope.lifecycleevent
 import zope.security.proxy
 
 
@@ -146,10 +147,7 @@ def veto_tagging_properties(event):
         event.veto()
 
 
-@grokcore.component.subscribe(
-    zeit.cms.content.interfaces.IXMLRepresentation,
-    zeit.cms.checkout.interfaces.IBeforeCheckinEvent)
-def add_ranked_tags_to_head(content, event):
+def add_ranked_tags_to_head(content):
     tagger = zeit.cms.tagging.interfaces.ITagger(content, None)
     xml = zope.security.proxy.removeSecurityProxy(content.xml)
     if tagger:
@@ -160,3 +158,17 @@ def add_ranked_tags_to_head(content, event):
             del xml.head.rankedTags
         except AttributeError:
             pass
+
+
+@grokcore.component.subscribe(
+    zeit.cms.content.interfaces.IXMLRepresentation,
+    zeit.cms.checkout.interfaces.IBeforeCheckinEvent)
+def update_tags_on_checkin(content, event):
+    add_ranked_tags_to_head(content)
+
+
+@grokcore.component.subscribe(
+    zeit.cms.content.interfaces.IXMLRepresentation,
+    zope.lifecycleevent.ObjectModifiedEvent)
+def update_tags_on_modify(content, event):
+    add_ranked_tags_to_head(content)
