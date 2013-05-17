@@ -306,6 +306,20 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
                 ['Karen Duve', 'Berlin'],
                 content.xml.head.rankedTags.getchildren())
 
+    def test_modified_event_should_leave_non_content_alone(self):
+        # regression #12394
+        import zeit.cms.content.interfaces
+        import zope.interface
+        import zope.lifecycleevent
+
+        dummy = type('Dummy', (object,), {})
+        zope.interface.alsoProvides(
+            dummy, zeit.cms.content.interfaces.IXMLRepresentation)
+        with mock.patch(
+                'zeit.intrafind.tagger.add_ranked_tags_to_head') as handler:
+            zope.lifecycleevent.modified(dummy)
+            self.assertFalse(handler.called)
+
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 

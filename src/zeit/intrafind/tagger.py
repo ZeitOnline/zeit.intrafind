@@ -164,11 +164,15 @@ def add_ranked_tags_to_head(content):
     zeit.cms.content.interfaces.IXMLRepresentation,
     zeit.cms.checkout.interfaces.IBeforeCheckinEvent)
 def update_tags_on_checkin(content, event):
+    # ICMSContent.providedBy(content) is True implicitly, since otherwise one
+    # wouldn't be able to check it in.
     add_ranked_tags_to_head(content)
 
 
 @grokcore.component.subscribe(
-    zeit.cms.content.interfaces.IXMLRepresentation,
+    zeit.cms.interfaces.ICMSContent,
     zope.lifecycleevent.ObjectModifiedEvent)
 def update_tags_on_modify(content, event):
+    if not zeit.cms.content.interfaces.IXMLRepresentation.providedBy(content):
+        return
     add_ranked_tags_to_head(content)

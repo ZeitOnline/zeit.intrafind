@@ -4,17 +4,10 @@ News
 2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Update tags on modified event for ICMSContent only (#12394).
 
 
 2.0 (2013-04-23)
 ----------------
 
-* Example news entry for the in-development version
-
-
-0.1 (2010-03-15)
-----------------
-
-* Example news entry for a released version
-
+- first release
