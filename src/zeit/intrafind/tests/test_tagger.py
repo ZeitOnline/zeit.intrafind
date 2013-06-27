@@ -85,6 +85,14 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         tagger = self.get_tagger(content)
         self.assertRaises(KeyError, lambda: tagger['foo'])
 
+    def test_setitem_should_add_tag(self):
+        from zeit.cms.tagging.tag import Tag
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger['uid-berlin'] = Tag('uid-berlin', 'Berlin')
+        self.assertEqual(['uid-berlin'], list(tagger))
+        self.assertEqual('Berlin', tagger['uid-berlin'].label)
+
     def test_iter_should_be_sorted_by_document_order(self):
         content = self.get_content()
         self.set_tags(content, """

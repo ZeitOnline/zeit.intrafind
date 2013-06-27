@@ -4,7 +4,8 @@ News
 2.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Allow adding new tags for a content object. This supports the new feature for
+  articles to add tags from the whitelist via autocomplete (#11421).
 
 
 2.0.1 (2013-05-21)

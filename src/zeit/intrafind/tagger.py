@@ -46,6 +46,19 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         tag.__name__ = tag.code
         return tag
 
+    def __setitem__(self, key, value):
+        tags = self._parse()
+        if tags is None:
+            E = lxml.objectify.ElementMaker(namespace=NAMESPACE)
+            root = E.rankedTags()
+            tags = E.rankedTags()
+            root.append(tags)
+        # XXX the handling of namespaces here seems chaotic
+        E = lxml.objectify.ElementMaker()
+        tags.append(E.tag(value.label, uuid=key))
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        dav[KEYWORD_PROPERTY] = lxml.etree.tostring(tags.getroottree())
+
     def values(self):
         return (self[code] for code in self)
 
