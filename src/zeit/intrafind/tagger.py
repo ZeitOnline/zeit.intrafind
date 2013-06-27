@@ -13,7 +13,6 @@ import zeit.cms.content.interfaces
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
 import zope.app.appsetup.product
-import zope.interface
 import zope.lifecycleevent
 import zope.security.proxy
 
@@ -123,7 +122,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         if tags is None:
             raise KeyError(key)
         node = tags.xpath('//tag[@uuid = {0}]'.format(
-                xml.sax.saxutils.quoteattr(key)))
+            xml.sax.saxutils.quoteattr(key)))
         if not node:
             raise KeyError(key)
         return node[0]
