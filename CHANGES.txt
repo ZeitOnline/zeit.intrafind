@@ -6,6 +6,7 @@ News
 
 - Allow adding new tags for a content object. This supports the new feature for
   articles to add tags from the whitelist via autocomplete (#11421).
+- Store "pinned" tags in a separate DAV-Property (#12521).
 
 
 2.0.1 (2013-05-21)

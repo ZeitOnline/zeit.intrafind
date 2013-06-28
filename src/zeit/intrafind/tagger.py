@@ -21,6 +21,7 @@ NAMESPACE = "http://namespaces.zeit.de/CMS/tagging"
 KEYWORD_PROPERTY = ('rankedTags', NAMESPACE)
 DISABLED_PROPERTY = ('disabled', NAMESPACE)
 DISABLED_SEPARATOR = '\x09'
+PINNED_PROPERTY = ('pinned', NAMESPACE)
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +41,9 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
 
     def __getitem__(self, key):
         node = self._find_tag_node(key)
-        tag = zeit.cms.tagging.tag.Tag(node.get('uuid'), unicode(node))
+        code = node.get('uuid')
+        tag = zeit.cms.tagging.tag.Tag(
+            code, unicode(node), code in self.pinned)
         tag.__parent__ = self
         tag.__name__ = tag.code
         return tag
@@ -105,6 +108,15 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             disabled = disabled.split(DISABLED_SEPARATOR)
         disabled.append(key)
         dav[DISABLED_PROPERTY] = DISABLED_SEPARATOR.join(disabled)
+
+    def set_pinned(self, keys):
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        dav[PINNED_PROPERTY] = DISABLED_SEPARATOR.join(keys)
+
+    @property
+    def pinned(self):
+        dav = zeit.connector.interfaces.IWebDAVProperties(self)
+        return dav.get(PINNED_PROPERTY, '').split(DISABLED_SEPARATOR)
 
     def _parse(self):
         dav = zeit.connector.interfaces.IWebDAVProperties(self)

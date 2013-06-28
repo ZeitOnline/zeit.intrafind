@@ -328,6 +328,23 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
             zope.lifecycleevent.modified(dummy)
             self.assertFalse(handler.called)
 
+    def test_set_pinned_should_update_tab_separated_property(self):
+        from zeit.connector.interfaces import IWebDAVProperties
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        tagger.set_pinned(['uid-berlin', 'uid-karenduve'])
+        self.assertEqual(['uid-berlin', 'uid-karenduve'], tagger.pinned)
+
+        dav = IWebDAVProperties(content)
+        dav_key = ('pinned', 'http://namespaces.zeit.de/CMS/tagging')
+        self.assertEqual('uid-berlin\tuid-karenduve', dav[dav_key])
+
+        self.assertTrue(tagger['uid-berlin'].pinned)
+
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
