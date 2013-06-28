@@ -116,7 +116,10 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
     @property
     def pinned(self):
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
-        return dav.get(PINNED_PROPERTY, '').split(DISABLED_SEPARATOR)
+        value = dav.get(PINNED_PROPERTY, '')
+        if not value:
+            return ()
+        return tuple(value.split(DISABLED_SEPARATOR))
 
     def _parse(self):
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
@@ -149,10 +152,20 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         self._load_from(xml)
 
     def _load_from(self, xml):
-        root = lxml.objectify.ElementMaker(namespace=NAMESPACE).rankedTags()
-        tags = xml.find('rankedTags')
-        if tags is not None:
-            root.append(xml['rankedTags'])
+        E = lxml.objectify.ElementMaker(namespace=NAMESPACE)
+        root = E.rankedTags()
+        new_tags = xml.find('rankedTags')
+        if new_tags is None:
+            new_tags = E.rankedTags()
+        root.append(new_tags)
+        new_codes = (x.get('uuid') for x in new_tags.iterchildren())
+
+        old_tags = self._parse()
+        for code in self.pinned:
+            if code not in new_codes:
+                pinned_tag = self._find_tag_node(code, old_tags)
+                new_tags.append(pinned_tag)
+
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
         dav[KEYWORD_PROPERTY] = lxml.etree.tostring(root.getroottree())
         dav[DISABLED_PROPERTY] = u''

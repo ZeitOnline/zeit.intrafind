@@ -337,7 +337,7 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 """)
         tagger = self.get_tagger(content)
         tagger.set_pinned(['uid-berlin', 'uid-karenduve'])
-        self.assertEqual(['uid-berlin', 'uid-karenduve'], tagger.pinned)
+        self.assertEqual(('uid-berlin', 'uid-karenduve'), tagger.pinned)
 
         dav = IWebDAVProperties(content)
         dav_key = ('pinned', 'http://namespaces.zeit.de/CMS/tagging')
@@ -379,3 +379,12 @@ class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         dav = IWebDAVProperties(content)
         dav_key = ('disabled', 'http://namespaces.zeit.de/CMS/tagging')
         self.assertEqual('', dav[dav_key])
+
+    def test_update_should_keep_pinned_tags(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>""")
+        tagger = self.get_tagger(content)
+        tagger.set_pinned(['uid-karenduve'])
+        tagger.update()
+        self.assertIn('uid-karenduve', tagger)
