@@ -80,6 +80,15 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         self.assertEqual('uid-karenduve', tag.__name__)
         self.assertEqual('Karen Duve', tag.label)
 
+    def test_tag_should_have_entity_type(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin" type="Location">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual('Location', tagger['uid-berlin'].entity_type)
+
     def test_getitem_should_raise_keyerror_if_tag_does_not_exist(self):
         content = self.get_content()
         tagger = self.get_tagger(content)
@@ -92,6 +101,14 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         tagger['uid-berlin'] = Tag('uid-berlin', 'Berlin')
         self.assertEqual(['uid-berlin'], list(tagger))
         self.assertEqual('Berlin', tagger['uid-berlin'].label)
+
+    def test_setitem_should_set_entity_type(self):
+        from zeit.cms.tagging.tag import Tag
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger['uid-berlin'] = Tag(
+            'uid-berlin', 'Berlin', entity_type='Location')
+        self.assertEqual('Location', tagger['uid-berlin'].entity_type)
 
     def test_iter_should_be_sorted_by_document_order(self):
         content = self.get_content()
