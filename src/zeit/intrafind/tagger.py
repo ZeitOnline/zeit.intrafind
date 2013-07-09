@@ -159,7 +159,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         if new_tags is None:
             new_tags = E.rankedTags()
         root.append(new_tags)
-        new_codes = (x.get('uuid') for x in new_tags.iterchildren())
+        new_codes = [x.get('uuid') for x in new_tags.iterchildren()]
 
         old_tags = self._parse()
         for code in self.pinned:

@@ -4,7 +4,7 @@ News
 2.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix bug that duplicated pinned tags on update.
 
 
 2.1.0 (2013-07-01)

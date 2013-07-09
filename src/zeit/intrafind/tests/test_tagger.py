@@ -404,4 +404,26 @@ class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         tagger = self.get_tagger(content)
         tagger.set_pinned(['uid-karenduve'])
         tagger.update()
-        self.assertIn('uid-karenduve', tagger)
+        self.assertEqual(['uid-karenduve'], list(tagger))
+
+    def test_update_should_not_duplicate_pinned_tags(self):
+        # this is a rather tricky edge case:
+        # when we pin a manual tag first, and then also pin a tag that
+        # comes in via update() again, we used to screw it up,
+        # since we compared against a generator multiple times
+        from zeit.cms.tagging.tag import Tag
+        handler = zeit.intrafind.testing.RequestHandler
+        handler.response_body = pkg_resources.resource_string(
+            __name__, 'tagger_response.xml')
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        tagger.update()
+        self.assertEqual(6, len(tagger))
+        tagger['uid-karenduve'] = Tag('uid-karenduve', 'Karen Duve')
+        tagger.set_pinned([
+            'uid-karenduve', 'aa23f170-65a2-4a00-8fec-006a3b4b73d2'])
+        tagger.update()
+        self.assertEqual(
+            [u'Feiertag', u'USA', u'Post',
+             u'Verlag', u'New York', u'Reims', u'Karen Duve'],
+            [tagger[x].label.strip() for x in tagger])
