@@ -11,7 +11,6 @@ version = '2.1.2.dev0'
 install_requires = [
     'mock',
     'setuptools',
-    'unittest2',
     'zeit.cms',
     'zope.interface',
     'zope.schema',
