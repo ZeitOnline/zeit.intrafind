@@ -89,6 +89,15 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         tagger = self.get_tagger(content)
         self.assertEqual('Location', tagger['uid-berlin'].entity_type)
 
+    def test_tag_should_have_url_value(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag uuid="uid-karenduve">Karen Duve</tag>
+<tag uuid="uid-berlin" url_value="dickesb">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual('dickesb', tagger['uid-berlin'].url_value)
+
     def test_getitem_should_raise_keyerror_if_tag_does_not_exist(self):
         content = self.get_content()
         tagger = self.get_tagger(content)

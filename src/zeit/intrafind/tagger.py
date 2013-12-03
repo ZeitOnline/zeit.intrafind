@@ -43,7 +43,8 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         node = self._find_tag_node(key)
         code = node.get('uuid')
         tag = zeit.cms.tagging.tag.Tag(
-            code, unicode(node), code in self.pinned, node.get('type'))
+            code, unicode(node), code in self.pinned, node.get('type'),
+            node.get('url_value'))
         tag.__parent__ = self
         tag.__name__ = tag.code
         return tag
@@ -58,7 +59,8 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         # XXX the handling of namespaces here seems chaotic
         E = lxml.objectify.ElementMaker()
         tags.append(E.tag(
-            value.label, uuid=key, type=value.entity_type or ''))
+            value.label, uuid=key, type=value.entity_type or '',
+            url_value=value.url_value or ''))
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
         dav[KEYWORD_PROPERTY] = lxml.etree.tostring(tags.getroottree())
 
