@@ -1,7 +1,7 @@
 News
 ====
 
-2.1.3 (unreleased)
+2.1.3 (2014-01-07)
 ------------------
 
 - Pass through ``url_value`` of tags.
