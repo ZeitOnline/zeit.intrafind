@@ -1,6 +1,7 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import pkg_resources
 import zeit.cms.testing
 
 
@@ -33,8 +34,9 @@ tagger_layer, http_port = zeit.cms.testing.HTTPServerLayer(RequestHandler)
 product_config = """
     <product-config zeit.intrafind>
         tagger http://localhost:{port}/ZeitOnline/tagger
+        trisolute-url file://{egg}/tests/fixtures/googleNewsTopics.json
     </product-config>
-""".format(port=http_port)
+""".format(port=http_port, egg=pkg_resources.resource_filename(__name__, ''))
 
 
 zcml_layer = zeit.cms.testing.ZCMLLayer('ftesting.zcml',

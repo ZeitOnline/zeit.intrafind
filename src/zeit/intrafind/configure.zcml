@@ -11,4 +11,13 @@
       />
   </class>
 
+  <class class=".trisolute.GoogleNewsTopics">
+    <require
+      interface="zeit.cms.tagging.interfaces.ICurrentTopics"
+      permission="zope.View"
+      />
+  </class>
+
+  <utility factory=".trisolute.GoogleNewsTopics" />
+
 </configure>

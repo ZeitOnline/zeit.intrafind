@@ -6,12 +6,13 @@ README = open(os.path.join(here, 'README.txt')).read()
 NEWS = open(os.path.join(here, 'CHANGES.txt')).read()
 
 
-version = '2.1.4.dev0'
+version = '2.2.0.dev0'
 
 install_requires = [
+    'gocept.cache',
     'mock',
     'setuptools',
-    'zeit.cms >= 2.12.0.dev0',
+    'zeit.cms >= 2.17.0.dev0',
     'zope.interface',
     'zope.schema',
 ]

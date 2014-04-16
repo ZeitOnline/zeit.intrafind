@@ -1,10 +1,10 @@
 News
 ====
 
-2.1.4 (unreleased)
+2.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Retrieve current Google news topics from Trisolute (VIV-359).
 
 
 2.1.3 (2014-01-07)
