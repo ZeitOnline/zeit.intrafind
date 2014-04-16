@@ -26,3 +26,6 @@ class GoogleNewsTopics(zeit.cms.testing.FunctionalTestCase):
 
     def test_unknown_ressort_returns_empty_list(self):
         self.assertEqual([], self.topics('Unknown'))
+
+    def test_ressorts_are_mapped_to_categories(self):
+        self.assertIn('YouTube', self.topics('Mobilitaet'))

@@ -32,10 +32,11 @@ class RequestHandler(zeit.cms.testing.BaseHTTPRequestHandler):
 tagger_layer, http_port = zeit.cms.testing.HTTPServerLayer(RequestHandler)
 
 product_config = """
-    <product-config zeit.intrafind>
-        tagger http://localhost:{port}/ZeitOnline/tagger
-        trisolute-url file://{egg}/tests/fixtures/googleNewsTopics.json
-    </product-config>
+<product-config zeit.intrafind>
+    tagger http://localhost:{port}/ZeitOnline/tagger
+    trisolute-url file://{egg}/tests/fixtures/googleNewsTopics.json
+    trisolute-ressort-url file://{egg}/tests/fixtures/trisolute-ressorts.xml
+</product-config>
 """.format(port=http_port, egg=pkg_resources.resource_filename(__name__, ''))
 
 

@@ -10,6 +10,7 @@ version = '2.2.0.dev0'
 
 install_requires = [
     'gocept.cache',
+    'gocept.lxml',
     'mock',
     'setuptools',
     'zeit.cms >= 2.17.0.dev0',

@@ -1,4 +1,5 @@
 import gocept.cache.method
+import gocept.lxml.objectify
 import itertools
 import json
 import logging
@@ -18,11 +19,12 @@ class GoogleNewsTopics(object):
     def __call__(self, ressort=None):
         if ressort is None:
             return list(itertools.chain(*self.keywords.values()))
-        return self.keywords.get(ressort, [])
-
-    @property
-    def headlines(self):
-        return self.headlines
+        categories = self.categories.get(ressort)
+        if not categories:
+            return self.keywords.get(ressort, [])
+        else:
+            return list(itertools.chain(*[
+                self.keywords.get(x, []) for x in categories]))
 
     @property
     def keywords(self):
@@ -34,10 +36,32 @@ class GoogleNewsTopics(object):
         self._load()
         return self._headlines
 
+    @property
+    def categories(self):
+        self._load()
+        return self._categories
+
     @gocept.cache.method.Memoize(600, ignore_self=True)
     def _load(self):
-        log.debug('Retrieving %s', self._trisolute_url)
-        response = urllib2.urlopen(self._trisolute_url, timeout=60)
+        self._load_ressort_mapping()
+        self._load_keywords()
+
+    def _load_ressort_mapping(self):
+        url = self._config['trisolute-ressort-url']
+        log.debug('Retrieving %s', url)
+        response = urllib2.urlopen(url)
+        root = gocept.lxml.objectify.fromfile(response)
+        mapping = {}
+        for ressort in root.ressort:
+            categories = mapping.setdefault(ressort.get('name'), [])
+            for category in ressort.category:
+                categories.append(category.text)
+        self._categories = mapping
+
+    def _load_keywords(self):
+        url = self._config['trisolute-url']
+        log.debug('Retrieving %s', url)
+        response = urllib2.urlopen(url, timeout=60)
         data = json.loads(response.read())
         keywords = {}
         headlines = []
@@ -50,7 +74,6 @@ class GoogleNewsTopics(object):
         self._headlines = headlines
 
     @property
-    def _trisolute_url(self):
-        config = zope.app.appsetup.product.getProductConfiguration(
+    def _config(self):
+        return zope.app.appsetup.product.getProductConfiguration(
             'zeit.intrafind')
-        return config['trisolute-url']
