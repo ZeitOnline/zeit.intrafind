@@ -13,7 +13,7 @@ install_requires = [
     'gocept.lxml',
     'mock',
     'setuptools',
-    'zeit.cms >= 2.17.0.dev0',
+    'zeit.cms >= 2.20.0.dev0',
     'zope.interface',
     'zope.schema',
 ]

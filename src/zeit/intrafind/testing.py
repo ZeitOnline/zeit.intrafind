@@ -45,7 +45,7 @@ product_config = """
 """.format(egg=pkg_resources.resource_filename(__name__, ''))
 
 
-class ZCMLLayer(zeit.cms.testing.ZCML_Layer):
+class ZCMLLayer(zeit.cms.testing.ZCMLLayer):
 
     defaultBases = (HTTP_LAYER,)
 
