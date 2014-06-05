@@ -6,7 +6,7 @@ import zope.component
 
 class GoogleNewsTopics(zeit.cms.testing.FunctionalTestCase):
 
-    layer = zeit.intrafind.testing.zcml_layer
+    layer = zeit.intrafind.testing.ZCML_LAYER
 
     @property
     def topics(self):

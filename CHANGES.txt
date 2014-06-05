@@ -4,7 +4,7 @@ News
 2.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Use gocept.httpserverlayer.custom to avoid port collisions in tests.
 
 
 2.2.0 (2014-04-22)

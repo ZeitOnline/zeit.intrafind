@@ -30,7 +30,7 @@ class TagTestHelpers(object):
 
 class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
-    layer = zeit.intrafind.testing.layer
+    layer = zeit.intrafind.testing.ZCML_LAYER
 
     def test_tagger_should_provide_interface(self):
         import zope.interface.verify
@@ -374,7 +374,7 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
 class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
 
-    layer = zeit.intrafind.testing.layer
+    layer = zeit.intrafind.testing.ZCML_LAYER
 
     def test_update_should_post_xml_urlencoded_to_intrafind(self):
         handler = zeit.intrafind.testing.RequestHandler

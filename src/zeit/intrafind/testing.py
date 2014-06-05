@@ -1,11 +1,12 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import gocept.httpserverlayer.custom
 import pkg_resources
 import zeit.cms.testing
 
 
-class RequestHandler(zeit.cms.testing.BaseHTTPRequestHandler):
+class RequestHandler(gocept.httpserverlayer.custom.RequestHandler):
 
     response_code = 200
     response_body = None
@@ -22,44 +23,36 @@ class RequestHandler(zeit.cms.testing.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(self.response_body or self.default_response)
 
-    @classmethod
-    def tearDown(cls):
-        cls.posts_received[:] = []
-        cls.response_body = None
-        cls.response_code = 200
 
+class HTTPLayer(gocept.httpserverlayer.custom.Layer):
 
-tagger_layer, http_port = zeit.cms.testing.HTTPServerLayer(RequestHandler)
+    def testTearDown(self):
+        super(HTTPLayer, self).testTearDown()
+        self['request_handler'].posts_received[:] = []
+        self['request_handler'].response_body = None
+        self['request_handler'].response_code = 200
+
+HTTP_LAYER = HTTPLayer(
+    RequestHandler, name='HTTPLayer', module=__name__)
+
 
 product_config = """
 <product-config zeit.intrafind>
-    tagger http://localhost:{port}/ZeitOnline/tagger
+    tagger http://localhost:[PORT]/ZeitOnline/tagger
     trisolute-url file://{egg}/tests/fixtures/googleNewsTopics.json
     trisolute-ressort-url file://{egg}/tests/fixtures/trisolute-ressorts.xml
 </product-config>
-""".format(port=http_port, egg=pkg_resources.resource_filename(__name__, ''))
+""".format(egg=pkg_resources.resource_filename(__name__, ''))
 
 
-zcml_layer = zeit.cms.testing.ZCMLLayer('ftesting.zcml',
-                                        product_config=product_config)
+class ZCMLLayer(zeit.cms.testing.ZCML_Layer):
+
+    defaultBases = (HTTP_LAYER,)
+
+    def setUp(self):
+        self.product_config = self.product_config.replace(
+            '[PORT]', str(self['http_port']))
+        super(ZCMLLayer, self).setUp()
 
 
-class layer(tagger_layer,
-            zcml_layer):
-
-    @classmethod
-    def setUp(cls):
-        pass
-
-    @classmethod
-    def tearDown(cls):
-        pass
-
-    @classmethod
-    def testSetUp(cls):
-        pass
-
-    @classmethod
-    def testTearDown(cls):
-        pass
-
+ZCML_LAYER = ZCMLLayer('ftesting.zcml', product_config=product_config)
