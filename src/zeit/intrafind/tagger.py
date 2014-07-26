@@ -192,7 +192,7 @@ def add_ranked_tags_to_head(content):
     xml = zope.security.proxy.removeSecurityProxy(content.xml)
     if tagger:
         xml.head.rankedTags = zope.security.proxy.removeSecurityProxy(
-                tagger)._parse()
+            tagger)._parse()
     else:
         try:
             del xml.head.rankedTags

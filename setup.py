@@ -19,21 +19,20 @@ install_requires = [
 ]
 
 
-setup(name='zeit.intrafind',
+setup(
+    name='zeit.intrafind',
     version=version,
     description="vivi intrafind integration",
     long_description=README + '\n\n' + NEWS,
-    classifiers=[
-      # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    ],
+    classifiers=[],
     keywords='',
     author='gocept',
     author_email='mail@gocept.com',
     url='',
     license='ZPL 2.1',
     packages=find_packages('src'),
-    package_dir = {'': 'src'},
-    namespace_packages = ['zeit'],
+    package_dir={'': 'src'},
+    namespace_packages=['zeit'],
     include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,
