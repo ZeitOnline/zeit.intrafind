@@ -15,7 +15,7 @@ class GoogleNewsTopics(zeit.cms.testing.FunctionalTestCase):
 
     def test_parses_response_into_data_dict(self):
         self.assertEqual(
-            u'Europäisches Parlament', self.topics('Wirtschaft')[0])
+            u'Ban Ki-moon', self.topics('Wirtschaft')[0])
 
     def test_headlines_are_not_keywords(self):
         self.assertIn(u'FC Liverpool', self.topics.headlines)

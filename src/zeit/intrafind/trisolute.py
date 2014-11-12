@@ -21,10 +21,11 @@ class GoogleNewsTopics(object):
             return list(itertools.chain(*self.keywords.values()))
         categories = self.categories.get(ressort)
         if not categories:
-            return self.keywords.get(ressort, [])
+            result = self.keywords.get(ressort, [])
         else:
-            return list(itertools.chain(*[
+            result = list(itertools.chain(*[
                 self.keywords.get(x, []) for x in categories]))
+        return sorted(result)
 
     @property
     def keywords(self):
