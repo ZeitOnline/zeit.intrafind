@@ -25,7 +25,7 @@ class GoogleNewsTopics(object):
         else:
             result = list(itertools.chain(*[
                 self.keywords.get(x, []) for x in categories]))
-        return sorted(result)
+        return sorted(result, key=lambda x: (x.lower(), x))
 
     @property
     def keywords(self):

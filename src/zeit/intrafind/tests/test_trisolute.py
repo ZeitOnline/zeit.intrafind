@@ -15,7 +15,13 @@ class GoogleNewsTopics(zeit.cms.testing.FunctionalTestCase):
 
     def test_parses_response_into_data_dict(self):
         self.assertEqual(
-            u'Ban Ki-moon', self.topics('Wirtschaft')[0])
+            u'Aaa Test', self.topics('Wirtschaft')[0])
+
+    def test_sorts_results_alphabetically_upper_before_lower(self):
+        self.assertEqual(
+            u'Aaa Test', self.topics('Wirtschaft')[0])
+        self.assertEqual(
+            u'andreas breitner', self.topics('Wirtschaft')[1])
 
     def test_headlines_are_not_keywords(self):
         self.assertIn(u'FC Liverpool', self.topics.headlines)
