@@ -1,6 +1,3 @@
-# Copyright (c) 2011 gocept gmbh & co. kg
-# See also LICENSE.txt
-
 import gocept.httpserverlayer.custom
 import pkg_resources
 import zeit.cms.testing
