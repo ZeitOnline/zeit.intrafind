@@ -4,7 +4,8 @@ News
 2.2.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Ignore <tag> nodes without uuid attribute (apparently this can happen in
+  zeit.web meta-files, sigh).
 
 
 2.2.2 (2014-11-14)

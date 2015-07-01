@@ -100,6 +100,15 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         tagger = self.get_tagger(content)
         self.assertRaises(KeyError, lambda: tagger['foo'])
 
+    def test_iter_ignores_tags_without_uuids(self):
+        content = self.get_content()
+        self.set_tags(content, """
+<tag>Karen Duve</tag>
+<tag uuid="uid-berlin">Berlin</tag>
+""")
+        tagger = self.get_tagger(content)
+        self.assertEqual(['uid-berlin'], list(tagger))
+
     def test_setitem_should_add_tag(self):
         from zeit.cms.tagging.tag import Tag
         content = self.get_content()

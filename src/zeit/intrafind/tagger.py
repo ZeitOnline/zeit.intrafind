@@ -31,7 +31,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         tags = self._parse()
         if tags is None:
             return iter(())
-        return (x.get('uuid') for x in tags.iterchildren())
+        return (x.get('uuid') for x in tags.iterchildren() if x.get('uuid'))
 
     def __len__(self):
         return len(list(self.__iter__()))
