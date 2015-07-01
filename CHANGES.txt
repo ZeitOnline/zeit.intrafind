@@ -1,7 +1,7 @@
 News
 ====
 
-2.2.3 (unreleased)
+2.2.3 (2015-07-01)
 ------------------
 
 - Ignore <tag> nodes without uuid attribute (apparently this can happen in
