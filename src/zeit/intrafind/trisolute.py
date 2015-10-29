@@ -62,8 +62,12 @@ class GoogleNewsTopics(object):
     def _load_keywords(self):
         url = self._config['trisolute-url']
         log.debug('Retrieving %s', url)
-        response = urllib2.urlopen(url, timeout=60)
-        data = json.loads(response.read())
+        try:
+            response = urllib2.urlopen(url, timeout=60)
+            data = json.loads(response.read())
+        except:
+            log.warning('Request to %s failed', url, exc_info=True)
+            data = []
         keywords = {}
         headlines = []
         for category in data:
