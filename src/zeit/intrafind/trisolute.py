@@ -63,7 +63,7 @@ class GoogleNewsTopics(object):
         url = self._config['trisolute-url']
         log.debug('Retrieving %s', url)
         try:
-            response = urllib2.urlopen(url, timeout=60)
+            response = urllib2.urlopen(url, timeout=10)
             data = json.loads(response.read())
         except:
             log.warning('Request to %s failed', url, exc_info=True)
