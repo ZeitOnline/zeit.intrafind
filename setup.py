@@ -15,11 +15,10 @@ setup(
     license='BSD',
     namespace_packages=['zeit'],
     install_requires=[
-        'gocept.cache',
         'gocept.lxml',
         'mock',
         'setuptools',
-        'zeit.cms >= 2.20.0.dev0',
+        'zeit.cms >= 2.64.0.dev0',
         'zope.interface',
         'zope.schema',
     ]

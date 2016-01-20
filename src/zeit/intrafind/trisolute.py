@@ -1,4 +1,4 @@
-import gocept.cache.method
+from zeit.cms.application import CONFIG_CACHE
 import gocept.lxml.objectify
 import itertools
 import json
@@ -42,7 +42,7 @@ class GoogleNewsTopics(object):
         self._load()
         return self._categories
 
-    @gocept.cache.method.Memoize(600, ignore_self=True)
+    @CONFIG_CACHE.cache_on_arguments()
     def _load(self):
         self._load_ressort_mapping()
         self._load_keywords()
