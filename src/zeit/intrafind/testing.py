@@ -52,4 +52,7 @@ class ZCMLLayer(zeit.cms.testing.ZCMLLayer):
         super(ZCMLLayer, self).setUp()
 
 
-ZCML_LAYER = ZCMLLayer('ftesting.zcml', product_config=product_config)
+ZCML_LAYER = ZCMLLayer(
+    'ftesting.zcml',
+    product_config=zeit.cms.testing.cms_product_config
+    + product_config)
