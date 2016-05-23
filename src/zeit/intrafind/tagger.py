@@ -4,14 +4,10 @@ import lxml.objectify
 import urllib
 import urllib2
 import xml.sax.saxutils
-import zeit.cms.checkout.interfaces
 import zeit.cms.content.dav
-import zeit.cms.content.interfaces
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
 import zope.app.appsetup.product
-import zope.lifecycleevent
-import zope.security.proxy
 
 
 NAMESPACE = "http://namespaces.zeit.de/CMS/tagging"
@@ -121,6 +117,9 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             return ()
         return tuple(value.split(DISABLED_SEPARATOR))
 
+    def to_xml(self):
+        return self._parse()
+
     def _parse(self):
         dav = zeit.connector.interfaces.IWebDAVProperties(self)
         try:
@@ -175,41 +174,3 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
         config = zope.app.appsetup.product.getProductConfiguration(
             'zeit.intrafind')
         return config['tagger']
-
-
-@grokcore.component.subscribe(
-    zeit.cms.content.interfaces.ISynchronisingDAVPropertyToXMLEvent)
-def veto_tagging_properties(event):
-    if event.namespace == NAMESPACE:
-        event.veto()
-
-
-def add_ranked_tags_to_head(content):
-    tagger = zeit.cms.tagging.interfaces.ITagger(content, None)
-    xml = zope.security.proxy.removeSecurityProxy(content.xml)
-    if tagger:
-        xml.head.rankedTags = zope.security.proxy.removeSecurityProxy(
-            tagger)._parse()
-    else:
-        try:
-            del xml.head.rankedTags
-        except AttributeError:
-            pass
-
-
-@grokcore.component.subscribe(
-    zeit.cms.content.interfaces.IXMLRepresentation,
-    zeit.cms.checkout.interfaces.IBeforeCheckinEvent)
-def update_tags_on_checkin(content, event):
-    # ICMSContent.providedBy(content) is True implicitly, since otherwise one
-    # wouldn't be able to check it in.
-    add_ranked_tags_to_head(content)
-
-
-@grokcore.component.subscribe(
-    zeit.cms.interfaces.ICMSContent,
-    zope.lifecycleevent.ObjectModifiedEvent)
-def update_tags_on_modify(content, event):
-    if not zeit.cms.content.interfaces.IXMLRepresentation.providedBy(content):
-        return
-    add_ranked_tags_to_head(content)

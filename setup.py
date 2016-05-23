@@ -18,7 +18,7 @@ setup(
         'gocept.lxml',
         'mock',
         'setuptools',
-        'zeit.cms >= 2.64.0.dev0',
+        'zeit.cms >= 2.81.0.dev0',
         'zope.interface',
         'zope.schema',
     ]

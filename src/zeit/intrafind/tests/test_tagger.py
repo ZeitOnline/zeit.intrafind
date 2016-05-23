@@ -356,7 +356,7 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         zope.interface.alsoProvides(
             dummy, zeit.cms.content.interfaces.IXMLRepresentation)
         with mock.patch(
-                'zeit.intrafind.tagger.add_ranked_tags_to_head') as handler:
+                'zeit.cms.tagging.tag.add_ranked_tags_to_head') as handler:
             zope.lifecycleevent.modified(dummy)
             self.assertFalse(handler.called)
 
