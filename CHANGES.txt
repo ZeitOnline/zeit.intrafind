@@ -4,7 +4,7 @@ News
 2.2.6 (unreleased)
 ------------------
 
-- Move tags to xml code to zeit.cms (ZON-3114).
+- Move tags-to-xml and trisolute code to zeit.cms (ZON-3114).
 
 
 2.2.5 (2016-01-20)

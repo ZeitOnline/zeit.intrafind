@@ -36,8 +36,6 @@ HTTP_LAYER = HTTPLayer(
 product_config = """
 <product-config zeit.intrafind>
     tagger http://localhost:[PORT]/ZeitOnline/tagger
-    trisolute-url file://{egg}/tests/fixtures/googleNewsTopics.json
-    trisolute-ressort-url file://{egg}/tests/fixtures/trisolute-ressorts.xml
 </product-config>
 """.format(egg=pkg_resources.resource_filename(__name__, ''))
 
