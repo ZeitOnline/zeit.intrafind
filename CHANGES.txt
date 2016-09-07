@@ -1,7 +1,7 @@
 News
 ====
 
-2.2.7 (unreleased)
+2.3.0 (2016-09-07)
 ------------------
 
 - Place ZCML under feature toggle "not zeit.retresco.tms".
