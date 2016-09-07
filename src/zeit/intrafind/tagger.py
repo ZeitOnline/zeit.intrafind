@@ -21,9 +21,6 @@ log = logging.getLogger(__name__)
 
 class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
 
-    # XXX Registered via site.zcml until move to zeit.retresco is complete.
-    grokcore.component.baseclass()
-    zope.component.adapts(zeit.cms.repository.interfaces.IDAVContent)
     grokcore.component.implements(zeit.cms.tagging.interfaces.ITagger)
 
     def __iter__(self):

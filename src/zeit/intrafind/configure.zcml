@@ -1,7 +1,9 @@
 <configure
   xmlns="http://namespaces.zope.org/zope"
+  xmlns:zcml="http://namespaces.zope.org/zcml"
   xmlns:grok="http://namespaces.zope.org/grok">
 
+  <configure zcml:condition="not-have zeit.retresco.tms">
   <grok:grok package="." />
 
   <class class=".tagger.Tagger">
@@ -10,5 +12,6 @@
       permission="zope.View"
       />
   </class>
+  </configure>
 
 </configure>

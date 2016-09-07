@@ -7,6 +7,5 @@
   <!-- We provide the actual implementation to the mocks registered
        by zeit.cms.tagging. -->
   <includeOverrides package="zeit.intrafind" />
-  <adapter factory="zeit.intrafind.tagger.Tagger" />
 
 </configure>
