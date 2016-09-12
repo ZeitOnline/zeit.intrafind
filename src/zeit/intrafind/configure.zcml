@@ -4,14 +4,23 @@
   xmlns:grok="http://namespaces.zope.org/grok">
 
   <configure zcml:condition="not-have zeit.retresco.tms">
-  <grok:grok package="." />
+    <grok:grok package="." />
 
-  <class class=".tagger.Tagger">
-    <require
-      interface="zeit.cms.tagging.interfaces.ITagger"
-      permission="zope.View"
-      />
-  </class>
+    <class class=".tagger.Tagger">
+      <require
+        interface="zeit.cms.tagging.interfaces.ITagger"
+        permission="zope.View"
+        />
+    </class>
+
+    <class class=".whitelist.Whitelist">
+      <require
+        interface="zeit.cms.tagging.interfaces.IWhitelist"
+        permission="zope.View"
+        />
+    </class>
+    <utility factory=".whitelist.Whitelist" />
+
   </configure>
 
 </configure>
