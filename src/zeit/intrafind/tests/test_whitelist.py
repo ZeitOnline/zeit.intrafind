@@ -64,7 +64,19 @@ class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
         wl = self.whitelist()
         wl._load()
         self.assertEqual(
-            'Person', wl.get('Arno Schmidt').entity_type)
+            'Person',
+            wl.get('221da83c-427a-417f-81e2-0d8b1c65b669').entity_type)
+
+    def test_get_retrieves_tag_via_uuid(self):
+        wl = self.whitelist()
+        wl._load()
+        self.assertEqual(
+            'Polarkreis', wl.get('ae11024e-69e0-4434-b7d3-f66efddb0459').label)
+
+    def test_get_returns_None_if_uuid_does_not_match(self):
+        wl = self.whitelist()
+        wl._load()
+        self.assertEqual(None, wl.get('I-do-not-match'))
 
     def test_load_should_add_tags_to_whitelist(self):
         wl = self.whitelist()

@@ -23,8 +23,8 @@ class Whitelist(object):
         return [tag for tag in self.data.values() if term in tag.label.lower()]
 
     def get(self, id):
-        result = self.search(id)
-        return result[0] if result else None
+        result = self.data.get(id)
+        return result if result else None
 
     def _get_url(self):
         cms_config = zope.app.appsetup.product.getProductConfiguration(
