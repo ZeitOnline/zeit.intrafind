@@ -2,7 +2,7 @@ from zeit.cms.tagging.interfaces import ID_NAMESPACE as TAG_NAMESPACE
 import json
 import zeit.cms.interfaces
 import zeit.cms.tagging.browser.widget
-import zeit.cms.tagging.tag
+import zeit.intrafind.tag
 
 
 class IntrafindTagWidget(zeit.cms.tagging.browser.widget.Widget):
@@ -21,7 +21,7 @@ class IntrafindTagWidget(zeit.cms.tagging.browser.widget.Widget):
                 tag = zeit.cms.interfaces.ICMSContent(item['code'])
             except TypeError:
                 # XXX stopgap until we find out about #12609
-                tag = zeit.cms.tagging.tag.Tag(
+                tag = zeit.intrafind.tag.Tag(
                     item['code'].replace(TAG_NAMESPACE, ''), item['label'])
             tag.pinned = item['pinned']
             result.append(tag)

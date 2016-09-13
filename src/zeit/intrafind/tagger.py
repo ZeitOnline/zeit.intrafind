@@ -7,6 +7,7 @@ import xml.sax.saxutils
 import zeit.cms.content.dav
 import zeit.cms.tagging.interfaces
 import zeit.connector.interfaces
+import zeit.intrafind.tag
 import zope.app.appsetup.product
 
 
@@ -35,7 +36,7 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
     def __getitem__(self, key):
         node = self._find_tag_node(key)
         code = node.get('uuid')
-        tag = zeit.cms.tagging.tag.Tag(
+        tag = zeit.intrafind.tag.Tag(
             code, unicode(node), code in self.pinned, node.get('type'),
             node.get('url_value'))
         tag.__parent__ = self

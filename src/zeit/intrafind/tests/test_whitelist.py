@@ -53,7 +53,7 @@ class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
 
     def test_load_should_create_tag_for_tag_nodes(self):
         wl = self.whitelist()
-        with mock.patch('zeit.cms.tagging.tag.Tag') as Tag:
+        with mock.patch('zeit.intrafind.tag.Tag') as Tag:
             wl._load()
         self.assertEqual(55, Tag.call_count)
         Tag.assert_called_with(

@@ -3,7 +3,7 @@ import gocept.lxml.objectify
 import logging
 import urllib2
 import zeit.cms.tagging.interfaces
-import zeit.cms.tagging.tag
+import zeit.intrafind.tag
 import zope.interface
 
 
@@ -42,7 +42,7 @@ class Whitelist(object):
         tags = {}
         tags_xml = gocept.lxml.objectify.fromfile(self._fetch())
         for tag_node in tags_xml.xpath('//tag'):
-            tag = zeit.cms.tagging.tag.Tag(
+            tag = zeit.intrafind.tag.Tag(
                 tag_node.get('uuid'), unicode(tag_node).strip(),
                 entity_type=tag_node.get('type'),
                 url_value=tag_node.get('url_value'))
