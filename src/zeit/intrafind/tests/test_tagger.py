@@ -110,7 +110,7 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         self.assertEqual(['uid-berlin'], list(tagger))
 
     def test_setitem_should_add_tag(self):
-        from zeit.cms.tagging.tag import Tag
+        from zeit.intrafind.tag import Tag
         content = self.get_content()
         tagger = self.get_tagger(content)
         tagger['uid-berlin'] = Tag('uid-berlin', 'Berlin')
@@ -118,7 +118,7 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         self.assertEqual('Berlin', tagger['uid-berlin'].label)
 
     def test_setitem_should_set_entity_type(self):
-        from zeit.cms.tagging.tag import Tag
+        from zeit.intrafind.tag import Tag
         content = self.get_content()
         tagger = self.get_tagger(content)
         tagger['uid-berlin'] = Tag(
@@ -426,7 +426,7 @@ class TaggerUpdateTest(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         # when we pin a manual tag first, and then also pin a tag that
         # comes in via update() again, we used to screw it up,
         # since we compared against a generator multiple times
-        from zeit.cms.tagging.tag import Tag
+        from zeit.intrafind.tag import Tag
         handler = zeit.intrafind.testing.RequestHandler
         handler.response_body = pkg_resources.resource_string(
             __name__, 'tagger_response.xml')
