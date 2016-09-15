@@ -5,8 +5,7 @@ import zeit.cms.interfaces
 
 class Tag(object):
 
-    zope.interface.implements(zeit.cms.tagging.interfaces.ITag,
-                              zeit.cms.interfaces.ICMSContent)
+    zope.interface.implements(zeit.cms.tagging.interfaces.ITag)
 
     def __init__(self, code, label, pinned=False, entity_type=None,
                  url_value=None):
@@ -15,6 +14,7 @@ class Tag(object):
         self.pinned = pinned
         self.entity_type = entity_type
         self.url_value = url_value
+        self.__name__ = self.code
 
     def __eq__(self, other):
         # XXX this is not a generic equality check. From a domain perspective,
