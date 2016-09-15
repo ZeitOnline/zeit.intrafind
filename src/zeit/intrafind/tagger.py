@@ -40,7 +40,6 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
             code, unicode(node), code in self.pinned, node.get('type'),
             node.get('url_value'))
         tag.__parent__ = self
-        tag.__name__ = tag.code
         return tag
 
     def __setitem__(self, key, value):
