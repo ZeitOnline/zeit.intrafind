@@ -28,6 +28,14 @@
         />
     </class>
 
+    <class class=".whitelist.Topicpages">
+      <require
+        interface="zeit.cms.tagging.interfaces.ITopicpages"
+        permission="zope.View"
+        />
+    </class>
+    <utility factory=".whitelist.Topicpages" />
+
   </configure>
 
 </configure>

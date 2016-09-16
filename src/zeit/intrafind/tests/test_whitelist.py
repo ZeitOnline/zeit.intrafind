@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import mock
 import pyramid_dogpile_cache2
 import zeit.cms.testing
+import zope.component
 
 
 class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
@@ -98,3 +99,17 @@ class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
             wl._load()
             wl._load()
         self.assertEqual(1, fromfile.call_count)
+
+
+class TestTopicpages(zeit.cms.testing.ZeitCmsTestCase):
+
+    layer = zeit.intrafind.testing.ZCML_LAYER
+
+    def test_converts_whitelist_to_topic_dicts(self):
+        wl = zope.component.getUtility(zeit.cms.tagging.interfaces.IWhitelist)
+        wl._load()
+        topics = zope.component.getUtility(
+            zeit.cms.tagging.interfaces.ITopicpages)
+        result = topics.get_topics()
+        self.assertEqual('testtag', result[0]['id'])
+        self.assertEqual('Testtag', result[0]['title'])

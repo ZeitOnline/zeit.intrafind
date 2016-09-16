@@ -6,6 +6,8 @@ News
 
 - ZON-3199: Move intrafind specific ``Whitelist`` and ``Tag`` to this package.
 
+- ZON-3236: Implement ``ITopicpages`` backed by our ``IWhitelist``.
+
 
 2.3.0 (2016-09-07)
 ------------------
