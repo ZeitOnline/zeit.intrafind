@@ -1,8 +1,13 @@
 from __future__ import absolute_import
+import json
 import mock
 import pyramid_dogpile_cache2
+import zeit.cms.browser.interfaces
+import zeit.cms.tagging.source
 import zeit.cms.testing
+import zeit.intrafind.testing
 import zope.component
+import zope.publisher.browser
 
 
 class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
@@ -99,6 +104,29 @@ class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
             wl._load()
             wl._load()
         self.assertEqual(1, fromfile.call_count)
+
+
+class TestWhitelist_locations(zeit.cms.testing.ZeitCmsBrowserTestCase):
+    """Testing ..whitelist.Whitelist.locations()."""
+
+    layer = zeit.intrafind.testing.ZCML_LAYER
+
+    def test_search_endtoend(self):
+        request = zope.publisher.browser.TestRequest(
+            skin=zeit.cms.browser.interfaces.ICMSLayer,
+            SERVER_URL='http://localhost/++skin++vivi')
+        url = zope.component.getMultiAdapter(
+            (zeit.cms.tagging.source.locationSource(None), request),
+            zeit.cms.browser.interfaces.ISourceQueryURL)
+        b = self.browser
+        b.open(url + '?term=ei')
+        result = json.loads(b.contents)
+        self.assertEqual([
+            {u'label': u'Schweiz',
+             u'value': u'tag://cf450d19-c8a2-4c92-b29a-51bf1f5bbf87'},
+            {u'label': u'Frankreich',
+             u'value': u'tag://f4b4f50b-6597-4ab4-8e8e-5d262d3680a5'}
+        ], result)
 
 
 class TestTopicpages(zeit.cms.testing.ZeitCmsTestCase):

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='zeit.intrafind',
-    version='2.4.1.dev0',
+    version='2.5.0.dev0',
     author='gocept, Zeit Online',
     author_email='zon-backend@zeit.de',
     url='http://www.zeit.de/',
@@ -18,7 +18,7 @@ setup(
         'gocept.lxml',
         'mock',
         'setuptools',
-        'zeit.cms>=2.89.0.dev0',
+        'zeit.cms>=2.90.0.dev0',
         'zope.interface',
         'zope.schema',
     ]

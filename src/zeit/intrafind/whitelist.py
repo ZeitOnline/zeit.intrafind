@@ -23,6 +23,12 @@ class Whitelist(object):
         term = term.lower()
         return [tag for tag in self.data.values() if term in tag.label.lower()]
 
+    def locations(self, term):
+        term = term.lower()
+        return [tag
+                for tag in self.data.values()
+                if tag.entity_type == 'Location' and term in tag.label.lower()]
+
     def get(self, id):
         result = self.data.get(id)
         return result if result else None
