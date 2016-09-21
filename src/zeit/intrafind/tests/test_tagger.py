@@ -8,8 +8,8 @@ import zeit.intrafind.testing
 class TagTestHelpers(object):
 
     def get_content(self):
-        from zeit.cms.testcontenttype.testcontenttype import TestContentType
-        return TestContentType()
+        from zeit.cms.testcontenttype.testcontenttype import ExampleContentType
+        return ExampleContentType()
 
     def set_tags(self, content, xml):
         from zeit.connector.interfaces import IWebDAVProperties
