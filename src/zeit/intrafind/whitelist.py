@@ -3,6 +3,7 @@ import collections
 import gocept.lxml.objectify
 import logging
 import urllib2
+import zeit.cms.interfaces
 import zeit.cms.tagging.interfaces
 import zeit.intrafind.tag
 import zope.interface
@@ -65,7 +66,7 @@ class Topicpages(object):
     def get_topics(self, start=0, rows=25):
         whitelist = zope.component.getUtility(
             zeit.cms.tagging.interfaces.IWhitelist)
-        result = zeit.cms.tagging.interfaces.Result()
+        result = zeit.cms.interfaces.Result()
         result.hits = len(whitelist.data)
         for tag in whitelist.data.values()[start:start + rows]:
             result.append({
