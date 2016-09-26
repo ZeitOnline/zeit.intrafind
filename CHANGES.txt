@@ -6,7 +6,6 @@ News
 
 - ZON-3364: Implement ``IWhitelist.locations()``.
 
-- Update to `zeit.cms >= 2.90`.
 
 2.4.0 (2016-09-16)
 ------------------
