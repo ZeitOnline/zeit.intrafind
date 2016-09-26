@@ -1,7 +1,7 @@
 News
 ====
 
-2.5.0 (unreleased)
+2.5.0 (2016-09-26)
 ------------------
 
 - ZON-3364: Implement ``IWhitelist.locations()``.
