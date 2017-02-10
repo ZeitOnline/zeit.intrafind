@@ -1,7 +1,7 @@
 News
 ====
 
-2.5.1 (unreleased)
+2.5.1 (2017-02-10)
 ------------------
 
 - PERF: Implement whitelist search via xpath instead of iterating all
