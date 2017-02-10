@@ -2,6 +2,7 @@ from zeit.cms.application import CONFIG_CACHE
 import collections
 import gocept.lxml.objectify
 import logging
+import lxml.etree
 import urllib2
 import zeit.cms.interfaces
 import zeit.cms.tagging.interfaces
@@ -10,6 +11,12 @@ import zope.interface
 
 
 log = logging.getLogger(__name__)
+
+
+def xpath_lowercase(context, x):
+    return x[0].lower()
+xpath_functions = lxml.etree.FunctionNamespace('zeit.intrafind')
+xpath_functions['lower'] = xpath_lowercase
 
 
 class Whitelist(object):
@@ -21,14 +28,15 @@ class Whitelist(object):
         return self._load()
 
     def search(self, term):
-        term = term.lower()
-        return [tag for tag in self.data.values() if term in tag.label.lower()]
+        xml = self._fetch()
+        nodes = xml.xpath(
+            '//tag[contains(zeit:lower(text()), "%s")]' %
+            term.lower(), namespaces={'zeit': 'zeit.intrafind'})
+        return [self.get(x.get('uuid')) for x in nodes]
 
     def locations(self, term):
-        term = term.lower()
-        return [tag
-                for tag in self.data.values()
-                if tag.entity_type == 'Location' and term in tag.label.lower()]
+        return [
+            tag for tag in self.search(term) if tag.entity_type == 'Location']
 
     def get(self, id):
         result = self.data.get(id)
@@ -39,17 +47,19 @@ class Whitelist(object):
             'zeit.cms')
         return cms_config.get('whitelist-url')
 
+    @CONFIG_CACHE.cache_on_arguments()
     def _fetch(self):
         url = self._get_url()
         __traceback_info__ = (url,)
         log.info('Loading keyword whitelist from %s', url)
-        return urllib2.urlopen(url)
+        data = urllib2.urlopen(url)
+        return gocept.lxml.objectify.fromfile(data)
 
     @CONFIG_CACHE.cache_on_arguments()
     def _load(self):
+        xml = self._fetch()
         tags = collections.OrderedDict()
-        tags_xml = gocept.lxml.objectify.fromfile(self._fetch())
-        for tag_node in tags_xml.xpath('//tag'):
+        for tag_node in xml.xpath('//tag'):
             tag = zeit.intrafind.tag.Tag(
                 tag_node.get('uuid'), unicode(tag_node).strip(),
                 entity_type=tag_node.get('type'),

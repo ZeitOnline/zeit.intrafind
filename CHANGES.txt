@@ -4,7 +4,8 @@ News
 2.5.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- PERF: Implement whitelist search via xpath instead of iterating all
+  Tag objects
 
 
 2.5.0 (2016-09-26)

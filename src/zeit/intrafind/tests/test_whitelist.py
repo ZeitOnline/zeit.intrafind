@@ -20,43 +20,6 @@ class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
         from ..whitelist import Whitelist
         return Whitelist()
 
-    def test_get_url_should_use_cms_product_config(self):
-        wl = self.whitelist()
-        with mock.patch(
-                'zope.app.appsetup.product.getProductConfiguration') as gpc:
-            wl._get_url()
-        gpc.assert_called_with('zeit.cms')
-
-    def test_fetch_should_load_url_from_get_url(self):
-        wl = self.whitelist()
-        wl._get_url = mock.Mock(return_value=mock.sentinel.url)
-        with mock.patch('urllib2.urlopen') as urlopen:
-            wl._fetch()
-        urlopen.assert_called_with(mock.sentinel.url)
-
-    def test_fetch_should_return_urlopen_result(self):
-        wl = self.whitelist()
-        wl._get_url = mock.Mock(return_value=mock.sentinel.url)
-        with mock.patch('urllib2.urlopen') as urlopen:
-            urlopen.return_value = mock.sentinel.response
-            self.assertEqual(mock.sentinel.response, wl._fetch())
-
-    def test_load_should_xml_parse_fetch_result(self):
-        wl = self.whitelist()
-        wl._fetch = mock.Mock(return_value=mock.sentinel.response)
-        with mock.patch('gocept.lxml.objectify.fromfile') as fromfile:
-            fromfile().iterchildren.return_value = []
-            wl._load()
-        fromfile.assert_called_with(mock.sentinel.response)
-
-    def test_load_should_iterate_tag_nodes(self):
-        wl = self.whitelist()
-        wl._fetch = mock.Mock(return_value=mock.sentinel.response)
-        with mock.patch('gocept.lxml.objectify.fromfile') as fromfile:
-            fromfile().iterchildren.return_value = []
-            wl._load()
-        fromfile().xpath.assert_called_with('//tag')
-
     def test_load_should_create_tag_for_tag_nodes(self):
         wl = self.whitelist()
         with mock.patch('zeit.intrafind.tag.Tag') as Tag:
@@ -98,12 +61,10 @@ class TestWhitelist(zeit.cms.testing.ZeitCmsTestCase):
     def test_load_result_should_be_cached(self):
         wl = self.whitelist()
         wl._fetch = mock.Mock()
-        with mock.patch('gocept.lxml.objectify.fromfile') as fromfile:
-            fromfile().iterchildren.return_value = []
-            fromfile.reset_mock()
-            wl._load()
-            wl._load()
-        self.assertEqual(1, fromfile.call_count)
+        wl._fetch.return_value.xpath.return_value = []
+        wl._load()
+        wl._load()
+        self.assertEqual(1, wl._fetch.call_count)
 
 
 class TestWhitelist_locations(zeit.cms.testing.ZeitCmsBrowserTestCase):
