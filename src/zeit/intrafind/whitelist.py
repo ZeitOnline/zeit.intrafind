@@ -42,15 +42,10 @@ class Whitelist(object):
         result = self.data.get(id)
         return result if result else None
 
-    def _get_url(self):
-        cms_config = zope.app.appsetup.product.getProductConfiguration(
-            'zeit.cms')
-        return cms_config.get('whitelist-url')
-
     @CONFIG_CACHE.cache_on_arguments()
     def _fetch(self):
-        url = self._get_url()
-        __traceback_info__ = (url,)
+        config = zope.app.appsetup.product.getProductConfiguration('zeit.cms')
+        url = config.get('whitelist-url')
         log.info('Loading keyword whitelist from %s', url)
         data = urllib2.urlopen(url)
         return gocept.lxml.objectify.fromfile(data)
