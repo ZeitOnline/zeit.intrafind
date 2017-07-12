@@ -161,6 +161,12 @@ class TestTagger(zeit.cms.testing.FunctionalTestCase, TagTestHelpers):
         self.assertEqual(
             ['uid-fleisch', 'uid-berlin', 'uid-karenduve'], list(tagger))
 
+    def test_updateOrder_should_do_nothing_if_tags_are_empty(self):
+        content = self.get_content()
+        tagger = self.get_tagger(content)
+        with self.assertNothingRaised():
+            tagger.updateOrder([])
+
     def test_given_keys_differ_from_existing_keys_should_raise(self):
         content = self.get_content()
         self.set_tags(content, """

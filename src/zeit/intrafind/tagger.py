@@ -83,6 +83,8 @@ class Tagger(zeit.cms.content.dav.DAVPropertiesAdapter):
                 % (list(self), keys))
         orderd = []
         tags = self._parse()
+        if tags is None:
+            return
         for key in keys:
             tag = self._find_tag_node(key, tags)
             orderd.append(tag)
