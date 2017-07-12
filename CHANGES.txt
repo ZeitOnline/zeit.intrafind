@@ -1,7 +1,7 @@
 News
 ====
 
-2.5.2 (unreleased)
+2.5.2 (2017-07-12)
 ------------------
 
 - FIX: Don't break in updateOrder when tags are empty
